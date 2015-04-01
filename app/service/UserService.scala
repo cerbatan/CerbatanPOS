@@ -1,21 +1,18 @@
 package service
 
-import models.{Tokens, BasicProfileFromUser, User, Users}
-import play.api.Application
+import models._
+import play.api.db.slick.Config.driver.simple._
+import repositories.{TokenRepository, UserRepository}
 import securesocial.core.providers.MailToken
-import securesocial.core.services.{SaveMode}
-import securesocial.core.{PasswordInfo, BasicProfile}
+import securesocial.core.services.SaveMode
+import securesocial.core.{BasicProfile, PasswordInfo}
 
 import scala.concurrent.Future
 
-import play.api.db.slick.Config.driver.simple._
-import repositories.{TokenRepository, UserRepository}
 
 class UserService()(implicit session: Session) extends securesocial.core.services.UserService[User] {
   override def find(providerId: String, userId: String): Future[Option[BasicProfile]] = {
-    val usersQuery: TableQuery[Users] = TableQuery[Users]
-    val userRepository: UserRepository = new UserRepository(usersQuery)
-    val user: Option[User] = userRepository.findUserByProvider(providerId, userId)
+    val user: Option[User] = findeUserByProviderIdAndUserId(providerId, userId)
     val profile = user.map(x => Some(BasicProfileFromUser(x))).getOrElse(None)
 
     Future.successful(profile)
@@ -36,26 +33,79 @@ class UserService()(implicit session: Session) extends securesocial.core.service
 
     val token = tokenRepository.findById(uuid)
 
-    if ( !token.isEmpty ){
+    if (!token.isEmpty) {
       tokenRepository.delete(uuid)
     }
 
     Future.successful(token)
   }
 
-  override def link(current: User, to: BasicProfile): Future[Users] = ???
+  def save(profile: BasicProfile, mode: SaveMode): Future[User] = {
+    mode match {
+      case SaveMode.SignUp => {
+        saveNewProfile(profile)
+      }
 
-  override def passwordInfoFor(user: User): Future[Option[PasswordInfo]] = ???
+      case SaveMode.LoggedIn => {
+        findeUserByProviderIdAndUserId(profile.providerId, profile.userId) match {
+          case None => {
+            saveNewProfile(profile)
+          }
+          case Some(existingUser) => {
+            updateProfile(profile, existingUser)
+          }
+        }
+      }
 
-  override def save(profile: BasicProfile, mode: SaveMode): Future[Users] = ???
+      case SaveMode.PasswordChange =>
+    }
 
-  override def findToken(token: String): Future[Option[MailToken]] = ???
+  }
 
-  override def deleteExpiredTokens(): Unit = ???
+  private def findeUserByProviderIdAndUserId(providerId: String, userId: String): Option[User] = {
+    val usersQuery: TableQuery[Users] = TableQuery[Users]
+    val userRepository: UserRepository = new UserRepository(usersQuery)
+    val user: Option[User] = userRepository.findUserByProvider(providerId, userId)
+    user
+  }
 
-  override def updatePasswordInfo(user: User, info: PasswordInfo): Future[Option[BasicProfile]] = ???
+  def updateProfile(profile: BasicProfile, user: User): Future[User] = {
+    val usersQuery: TableQuery[Users] = TableQuery[Users]
+    val userRepository: UserRepository = new UserRepository(usersQuery)
 
-  override def saveToken(token: MailToken): Future[MailToken] = ???
+    val newUserWithProfile = UserFromBasicProfile(profile)
+    val updatedUser = newUserWithProfile.copy(id = user.id, userId = user.userId, providerId = user.providerId)
+
+
+    userRepository.updateWholeUserProfile(updatedUser).fold(
+      error => Future.failed(error),
+      user => Future.successful(user)
+    )
+  }
+
+  private def saveNewProfile(profile: BasicProfile): Future[User] = {
+    val usersQuery: TableQuery[Users] = TableQuery[Users]
+    val userRepository: UserRepository = new UserRepository(usersQuery)
+
+    val savedId: UserId = userRepository.save(UserFromBasicProfile(profile))
+    userRepository.findById(savedId).map(
+      Future.successful(_)
+    ).getOrElse(Future.failed(new scala.Exception("Failed to save new profile)")))
+  }
+
+  def link(current: User, to: BasicProfile): Future[User] = {
+
+  }
+
+  def passwordInfoFor(user: User): Future[Option[PasswordInfo]] = ???
+
+  def updatePasswordInfo(user: User, info: PasswordInfo): Future[Option[BasicProfile]] = ???
+
+  def deleteExpiredTokens(): Unit = ???
+
+  def findToken(token: String): Future[Option[MailToken]] = ???
+
+  def saveToken(token: MailToken): Future[MailToken] = ???
 }
 
-case class DemoUser(main: BasicProfile, identities: List[BasicProfile])
+case class LoginUser(main: BasicProfile, identities: List[BasicProfile])

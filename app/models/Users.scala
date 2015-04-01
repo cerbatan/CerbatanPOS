@@ -39,6 +39,10 @@ object BasicProfileFromUser {
   def apply(u: User): BasicProfile = BasicProfile(u.providerId, u.userId, u.firstName, u.lastName, u.fullName, u.email, u.avatarUrl, u.authMethod, u.oAuth1Info, u.oAuth2Info, u.passwordInfo)
 }
 
+object UserFromBasicProfile {
+  def apply(p: BasicProfile): User = User(None, p.providerId, p.userId, p.firstName, p.lastName, p.fullName, p.email, p.avatarUrl, p.authMethod, p.oAuth1Info, p.oAuth2Info, p.passwordInfo)
+}
+
 /** Table definition for users. */
 class Users(tag: Tag) extends IdTable[UserId, User](tag, "USERS") {
   implicit def string2AuthenticationMethod = MappedColumnType.base[AuthenticationMethod, String](

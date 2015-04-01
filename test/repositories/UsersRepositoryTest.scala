@@ -58,6 +58,31 @@ class UsersRepositoryTest extends PlaySpecification {
         userOpt.flatMap(_.id) should not be (None)
       }
     }
+
+    "update user" in new WithApplication {
+      DB.withSession { implicit session: Session =>
+        val usersQuery: TableQuery[Users] = TableQuery[Users]
+        val usersRepository = new UserRepository(usersQuery)
+
+        val user = User(None, "UserPassword", "userId", Some("firstName"), Some("lastName"), Some("fullName"), Some("test@email.com"), None, AuthenticationMethod.UserPassword)
+        val userId = usersRepository save user
+        val userOpt = usersRepository findUserByProvider ( user.providerId, user.userId )
+
+        userOpt should not be None
+
+        val userToUpdate = userOpt.get.copy(email = Some("new@email.com"), fullName = Some("newFullName"))
+
+        val updateResult = usersRepository.updateWholeUserProfile(userToUpdate)
+
+        updateResult must beRight
+
+        val updateUser = usersRepository.findById(userOpt.get.id.get)
+
+
+        updateUser.map(_.email) shouldEqual Some(userToUpdate.email)
+        updateUser.map(_.fullName) shouldEqual Some(userToUpdate.fullName)
+      }
+    }
   }
 
 }
