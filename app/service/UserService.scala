@@ -1,8 +1,9 @@
 package service
 
-import models._
+import models.db._
+import org.joda.time.DateTime
 import play.api.db.slick.Config.driver.simple._
-import repositories.{TokenRepository, UserRepository}
+import repositories.{AuthenticationProfileRepository, SystemUserRepository, TokenRepository}
 import securesocial.core.providers.MailToken
 import securesocial.core.services.SaveMode
 import securesocial.core.{BasicProfile, PasswordInfo}
@@ -10,26 +11,26 @@ import securesocial.core.{BasicProfile, PasswordInfo}
 import scala.concurrent.Future
 
 
-class UserService()(implicit session: Session) extends securesocial.core.services.UserService[User] {
+class UserService()(implicit session: Session) extends securesocial.core.services.UserService[LoginUser] {
   override def find(providerId: String, userId: String): Future[Option[BasicProfile]] = {
-    val user: Option[User] = findeUserByProviderIdAndUserId(providerId, userId)
-    val profile = user.map(x => Some(BasicProfileFromUser(x))).getOrElse(None)
+    val profileRepository = AuthenticationProfileRepository
+    val authProflie: Option[AuthenticationProfile] = profileRepository.findProfileByProviderAndUserId(providerId, userId)
+
+    val profile = authProflie.map(x => Some(BasicProfileFromAuthenticationProfile(x))).getOrElse(None)
 
     Future.successful(profile)
   }
 
   override def findByEmailAndProvider(email: String, providerId: String): Future[Option[BasicProfile]] = {
-    val usersQuery: TableQuery[Users] = TableQuery[Users]
-    val userRepository: UserRepository = new UserRepository(usersQuery)
-    val user: Option[User] = userRepository.findByEmailAndProvider(email, providerId)
-    val profile = user.map(x => Some(BasicProfileFromUser(x))).getOrElse(None)
+    val profileRepository = AuthenticationProfileRepository
+    val authProfile: Option[AuthenticationProfile] = profileRepository.findByEmailAndProvider(email, providerId)
+    val profile = authProfile.map(x => Some(BasicProfileFromAuthenticationProfile(x))).getOrElse(None)
 
     Future.successful(profile)
   }
 
   override def deleteToken(uuid: String): Future[Option[MailToken]] = {
-    val tokensQuery: TableQuery[Tokens] = TableQuery[Tokens]
-    val tokenRepository = new TokenRepository(tokensQuery)
+    val tokenRepository = TokenRepository
 
     val token = tokenRepository.findById(uuid)
 
@@ -40,14 +41,14 @@ class UserService()(implicit session: Session) extends securesocial.core.service
     Future.successful(token)
   }
 
-  def save(profile: BasicProfile, mode: SaveMode): Future[User] = {
+  def save(profile: BasicProfile, mode: SaveMode): Future[LoginUser] = {
     mode match {
       case SaveMode.SignUp => {
         saveNewProfile(profile)
       }
 
       case SaveMode.LoggedIn => {
-        findeUserByProviderIdAndUserId(profile.providerId, profile.userId) match {
+        findLoginUserByProviderIdAndUserId(profile.providerId, profile.userId) match {
           case None => {
             saveNewProfile(profile)
           }
@@ -58,54 +59,123 @@ class UserService()(implicit session: Session) extends securesocial.core.service
       }
 
       case SaveMode.PasswordChange =>
+        findLoginUserByProviderIdAndUserId(profile.providerId, profile.userId).map { u =>
+          updateProfile(profile, u)
+        }.getOrElse(Future.failed(new Exception("Missing Profile")))
     }
-
   }
 
-  private def findeUserByProviderIdAndUserId(providerId: String, userId: String): Option[User] = {
-    val usersQuery: TableQuery[Users] = TableQuery[Users]
-    val userRepository: UserRepository = new UserRepository(usersQuery)
-    val user: Option[User] = userRepository.findUserByProvider(providerId, userId)
-    user
+  private def findLoginUserByProviderIdAndUserId(providerId: String, userId: String): Option[LoginUser] = {
+    val systemUserRepository = SystemUserRepository
+    val systemUser = systemUserRepository.findByUserId(userId)
+
+    systemUser match {
+      case None =>
+        None
+      case Some(user) => {
+        val profileRepository = AuthenticationProfileRepository
+        val profiles = profileRepository.findByUserId(userId).map(BasicProfileFromAuthenticationProfile(_))
+
+        profiles.find { p => p.providerId == providerId } match {
+          case None =>
+            None
+          case Some(mainProfile) =>
+            Some(LoginUser(user, mainProfile, profiles))
+        }
+      }
+    }
   }
 
-  def updateProfile(profile: BasicProfile, user: User): Future[User] = {
-    val usersQuery: TableQuery[Users] = TableQuery[Users]
-    val userRepository: UserRepository = new UserRepository(usersQuery)
+  def updateProfile(profile: BasicProfile, user: LoginUser): Future[LoginUser] = {
+    val profilesRepository = AuthenticationProfileRepository
 
-    val newUserWithProfile = UserFromBasicProfile(profile)
-    val updatedUser = newUserWithProfile.copy(id = user.id, userId = user.userId, providerId = user.providerId)
+    profilesRepository.updateWholeProfile(AuthenticationProfileFromBasicProfile(profile)) match {
+      case Left(throwable) =>
+        Future.failed(throwable)
 
+      case Right(_) => {
+        val profiles: List[BasicProfile] = user.profiles
+        val updatedList: List[BasicProfile] = profiles.patch(profiles.indexWhere(_.providerId == profile.providerId), Seq(profile), 1)
+        val loginUser: LoginUser = user.copy(profiles = updatedList)
 
-    userRepository.updateWholeUserProfile(updatedUser).fold(
-      error => Future.failed(error),
-      user => Future.successful(user)
-    )
+        Future.successful(loginUser)
+      }
+    }
   }
 
-  private def saveNewProfile(profile: BasicProfile): Future[User] = {
-    val usersQuery: TableQuery[Users] = TableQuery[Users]
-    val userRepository: UserRepository = new UserRepository(usersQuery)
+  private def saveNewProfile(profile: BasicProfile): Future[LoginUser] = {
 
-    val savedId: UserId = userRepository.save(UserFromBasicProfile(profile))
-    userRepository.findById(savedId).map(
-      Future.successful(_)
-    ).getOrElse(Future.failed(new scala.Exception("Failed to save new profile)")))
+    val userRepository = SystemUserRepository
+    val user: SystemUser = new SystemUser(None, profile.userId)
+
+    val savedUserId = userRepository.save(user)
+
+    userRepository.findById(savedUserId) match {
+      case None =>
+        Future.failed(new scala.Exception("Failed to save new user"))
+      case Some(x: SystemUser) =>
+        val profileRepository = AuthenticationProfileRepository
+        val savedId: ProfileId = profileRepository.save(AuthenticationProfileFromBasicProfile(profile))
+        if (savedId.id > 0) {
+          val loginUser = LoginUser(x, profile, List(profile))
+          Future.successful(loginUser)
+        } else {
+          Future.failed(new scala.Exception("Failed to save new profile"))
+        }
+    }
   }
 
-  def link(current: User, to: BasicProfile): Future[User] = {
+  override def link(current: LoginUser, to: BasicProfile): Future[LoginUser] = {
+    if (current.profiles.exists(p => p.providerId == to.providerId)) {
+      Future.successful(current)
 
+    } else {
+      val profileRepository = AuthenticationProfileRepository
+      val savedId: ProfileId = profileRepository.save(AuthenticationProfileFromBasicProfile(to))
+      if (savedId.id > 0) {
+        val updatedProfiles = to :: current.profiles
+        val updatedUser = current.copy(profiles = updatedProfiles)
+
+        Future.successful(updatedUser)
+      } else {
+        Future.failed(new scala.Exception("Failed to save new profile"))
+      }
+    }
   }
 
-  def passwordInfoFor(user: User): Future[Option[PasswordInfo]] = ???
+  override def passwordInfoFor(user: LoginUser): Future[Option[PasswordInfo]] = {
+    Future.successful(user.main.passwordInfo)
+  }
 
-  def updatePasswordInfo(user: User, info: PasswordInfo): Future[Option[BasicProfile]] = ???
+  override def findToken(token: String): Future[Option[MailToken]] = {
+    val tokenRepository = TokenRepository
 
-  def deleteExpiredTokens(): Unit = ???
+    Future.successful(tokenRepository.findById(token))
+  }
 
-  def findToken(token: String): Future[Option[MailToken]] = ???
+  override def updatePasswordInfo(user: LoginUser, info: PasswordInfo): Future[Option[BasicProfile]] = {
+    val profileRepository = AuthenticationProfileRepository
+    val authProflie = profileRepository.findProfileByProviderAndUserId(user.main.providerId, user.main.userId)
 
-  def saveToken(token: MailToken): Future[MailToken] = ???
+    authProflie.map { p =>
+      profileRepository.updatePasswordInfo(p, info) match {
+        case Left(trowable) => Future.failed(trowable)
+        case Right(profile) => Future.successful(Some(BasicProfileFromAuthenticationProfile(profile)))
+      }
+    }.getOrElse(Future.failed(new Exception("Could not find user profile")))
+  }
+
+  override def deleteExpiredTokens(): Unit = {
+    val tokenRepository = TokenRepository
+
+    tokenRepository.deleteExpiredTokens(DateTime.now())
+  }
+
+  override def saveToken(token: MailToken): Future[MailToken] = {
+    val tokenRepository = TokenRepository
+
+    Future.successful(tokenRepository.save(token))
+  }
 }
 
-case class LoginUser(main: BasicProfile, identities: List[BasicProfile])
+case class LoginUser(user: SystemUser, main: BasicProfile, profiles: List[BasicProfile])

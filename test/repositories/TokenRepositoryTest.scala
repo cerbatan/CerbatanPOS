@@ -13,8 +13,7 @@ class TokenRepositoryTest extends PlaySpecification {
 
     "save and query tokens by id" in new WithApplication {
       DB.withSession { implicit session: Session =>
-        val tokensQuery = TableQuery[Tokens]
-        val tokenRepository = new TokenRepository(tokensQuery)
+        val tokenRepository = TokenRepository
 
         val token = MailToken("uuid", "the@mail.com", DateTime.parse("2015-10-03T16:00:45.123"), DateTime.parse("2015-10-03T16:00:45.123"), false)
         val savedToken = tokenRepository save token
@@ -30,8 +29,7 @@ class TokenRepositoryTest extends PlaySpecification {
 
     "correctly delete tokens" in new WithApplication {
       DB.withSession { implicit session: Session =>
-        val tokensQuery = TableQuery[Tokens]
-        val tokenRepository = new TokenRepository(tokensQuery)
+        val tokenRepository = TokenRepository
 
         val token = MailToken("uuid", "the@mail.com", DateTime.parse("2015-10-03T16:00:45.123"), DateTime.parse("2015-10-03T16:00:45.123"), false)
         val savedToken = tokenRepository save token
@@ -46,8 +44,7 @@ class TokenRepositoryTest extends PlaySpecification {
 
     "correctly delete expired token" in new WithApplication {
       DB.withSession { implicit session: Session =>
-        val tokensQuery = TableQuery[Tokens]
-        val tokenRepository = new TokenRepository(tokensQuery)
+        val tokenRepository = TokenRepository
 
         val token = MailToken("uuid", "the@mail.com", DateTime.parse("2015-10-03T16:00:45.123"), DateTime.parse("2015-10-03T16:00:45.123"), false)
         val savedToken = tokenRepository save token
@@ -61,8 +58,7 @@ class TokenRepositoryTest extends PlaySpecification {
 
     "correctly conserve non expired token" in new WithApplication {
       DB.withSession { implicit session: Session =>
-        val tokensQuery = TableQuery[Tokens]
-        val tokenRepository = new TokenRepository(tokensQuery)
+        val tokenRepository = TokenRepository
 
         val token = MailToken("uuid", "the@mail.com", DateTime.parse("2015-10-03T16:00:45.123"), DateTime.parse("2015-10-03T16:00:45.123"), false)
         val savedToken = tokenRepository save token

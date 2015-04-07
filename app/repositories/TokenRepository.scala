@@ -6,7 +6,7 @@ import org.joda.time.DateTime
 import play.api.db.slick.Config.driver.simple._
 import securesocial.core.providers.MailToken
 
-class TokenRepository(query: TableQuery[Tokens]) {
+object TokenRepository extends BasicRepository[Tokens](tokensQuery) {
   def findById(tokenId: String)(implicit session: Session): Option[MailToken] = {
     val q = for {
       token <- query
@@ -28,8 +28,8 @@ class TokenRepository(query: TableQuery[Tokens]) {
           if t.uuid === existingToken.uuid
         } yield t
 
-        val updatedToken = token.copy(uuid = existingToken.uuid)
-        updatedToken
+        tokenRow.update(token)
+        token
       }
     }
   }
