@@ -1,8 +1,12 @@
 //import controllers.CustomRoutesService
+
 import java.lang.reflect.Constructor
 import play.api.db.DB
 import securesocial.core.RuntimeEnvironment
+import securesocial.core.providers.UsernamePasswordProvider
 import service.{LoginUser, UserService}
+
+import scala.collection.immutable.ListMap
 
 //import service.{DemoUser, UserService}
 
@@ -13,22 +17,12 @@ import play.api.Play.current
 
 object Global extends play.api.GlobalSettings {
 
-//  override def onStart(app: Application) {
-//
-//    lazy val database = Database.forDataSource(DB.getDataSource())
-//
-//  }
-//
-  /**
-   * The runtime environment for this sample app.
-   */
-  object MyRuntimeEnvironment extends RuntimeEnvironment.Default[LoginUser] {
-    override implicit val executionContext = play.api.libs.concurrent.Execution.defaultContext
-//    override lazy val routes = new CustomRoutesService()
-    override lazy val userService: UserService = new UserService()
-//    override lazy val eventListeners = List(new MyEventListener())
-  }
-
+  //  override def onStart(app: Application) {
+  //
+  //    lazy val database = Database.forDataSource(DB.getDataSource())
+  //
+  //  }
+  //
   /**
    * An implementation that checks if the controller expects a RuntimeEnvironment and
    * passes the instance to it if required.
@@ -47,5 +41,20 @@ object Global extends play.api.GlobalSettings {
       _.asInstanceOf[Constructor[A]].newInstance(MyRuntimeEnvironment)
     }
     instance.getOrElse(super.getControllerInstance(controllerClass))
+  }
+
+  /**
+   * The runtime environment for this sample app.
+   */
+  object MyRuntimeEnvironment extends RuntimeEnvironment.Default[LoginUser] {
+    //    override lazy val routes = new CustomRoutesService()
+    override lazy val userService: UserService = new UserService()
+    //    override lazy val eventListeners = List(new MyEventListener())
+    override lazy val providers = ListMap(
+      include(
+        new UsernamePasswordProvider[LoginUser](userService, avatarService, viewTemplates, passwordHashers)
+      )
+    )
+    override implicit val executionContext = play.api.libs.concurrent.Execution.defaultContext
   }
 }
