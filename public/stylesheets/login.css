@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'Aldo';
+    src:  url('aldo.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+.img-responsive {
+    display: block;
+    max-width: 140px;
+    height: auto;
+    margin: auto;
+    background-color: transparent;
+}
+
+.login-title {
+    font-family: 'Aldo' !important;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    text-transform: none;
+}
+
+.page-signin .signin-header, .page-signup .signin-header, .page-forgot .signin-header {
+    margin-top: 100px;
+}

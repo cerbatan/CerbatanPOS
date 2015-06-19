@@ -1,21 +1,80 @@
-@(title: String)(content: Html)
+@(title: String)
 
 <!DOCTYPE html>
-<html>
-<head>
-    <title>@title</title>
-    <link rel='shortcut icon' type='image/png' href='@routes.Assets.at("images/favicon.png")'>
-</head>
-<body>
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container-fluid">
-                <a id="titleLink" class="brand" href="/">@title</a>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        @content
-    </div>
-</body>
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>@title</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+            <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        @*<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic' rel='stylesheet' type='text/css'>*@
+            <!-- Needs images, font... therefore can not be part of main.css -->
+        <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("font-awesome.min.css"))'>
+        @*<link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">*@
+            <!-- end Needs images -->
+
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.min.css")">
+        <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("select.min.css"))'>
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+
+
+        <script>
+          var require = {
+            callback: function() {
+              // default requirejs configs
+                @for(webJarJson <- org.webjars.RequireJS.getSetupJson(routes.WebJarAssets.at("").url).values()) {
+                    requirejs.config(@Html(webJarJson.toString)
+
+                        );
+                                        }
+
+              // example custom requirejs config
+              requirejs.config({
+                paths: {
+                  "angular-scroll": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-scroll.min.js").dropRight(3))',
+                  "angular-tags-input": '@routes.WebJarAssets.at(WebJarAssets.locate("ng-tags-input.min.js").dropRight(3))',
+                  "angular-ui-select": '@routes.WebJarAssets.at(WebJarAssets.locate("select.min.js").dropRight(3))'
+                },
+                shim: {
+                  "angular-scroll": { deps: ['angular'] },
+                  "angular-tags-input": { deps: ['angular'] },
+                  "angular-ui-select": { deps: ['angular'] }
+                }
+              });
+            }
+          };
+        </script>
+        <script data-main="@routes.Assets.versioned("js/app.js")" src='@routes.WebJarAssets.at(WebJarAssets.locate("require.min.js"))'></script>
+
+    </head>
+    <body
+    id="app"
+    class="app nav-collapsed-min"
+    data-custom-page
+    data-off-canvas-nav
+    data-ng-controller="AppCtrl"
+    data-ng-class=" {'layout-boxed': admin.layout === 'boxed' } "
+    >
+            <!--[if lt IE 9]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <section data-ng-include=" '@routes.Application.header()' "
+        id="header"
+        class="header-container "
+        data-ng-class=" {'header-fixed': admin.fixedHeader} "
+        data-ng-controller="HeaderCtrl"></section>
+
+        <div class="main-container">
+            <aside data-ng-include=" '@routes.Application.navigation()' "
+            id="nav-container"
+            class="nav-container"
+            data-ng-class=" {'nav-fixed': admin.fixedSidebar, 'nav-horizontal': admin.menu === 'horizontal', 'nav-vertical': admin.menu === 'vertical'}">
+            </aside>
+
+            <section data-ng-view id="content" class="content-container animate-fade-up"></section>
+        </div  >
+    </body>
 </html>

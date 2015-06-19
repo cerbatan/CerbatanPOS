@@ -1,37 +1,53 @@
 package models.db
 
+import models.Role
+import models.Role.Guest
 import org.virtuslab.unicorn.LongUnicornPlay._
 import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
 
+
 import scala.slick.lifted.ProvenShape
 
-case class UserId(id: Long) extends AnyVal with BaseId
+case class SystemUserId(id: Long) extends AnyVal with BaseId
 
-object UserId extends IdCompanion[UserId]
+object SystemUserId extends IdCompanion[SystemUserId]
 
 /** User entity.
   */
-case class SystemUser(id: Option[UserId],
-                userId: String,
-                role: String = "guest") extends WithId[UserId]
+case class SystemUser(id: Option[SystemUserId],
+                      role: Role = Guest,
+                      email: String,
+                      password: String,
+                      fullName: Option[String]
+                      ) extends WithId[SystemUserId]
 
 
-class SystemUsers(tag: Tag) extends IdTable[UserId, SystemUser](tag, "SYSTEM_USERS") {
+class SystemUsers(tag: Tag) extends IdTable[SystemUserId, SystemUser](tag, "SYSTEM_USERS") {
+  implicit def string2Role = MappedColumnType.base[Role, String](
+    role => role.toString,
+    string => Role.valueOf(string)
+  )
+
+
   def * : ProvenShape[SystemUser] = {
-    val shapedValue = (id.?, userId, role).shaped
+    val shapedValue = (id.?, role, email, password, fullName).shaped
 
     shapedValue.<>({
-      tuple => SystemUser(id = tuple._1, userId = tuple._2, role = tuple._3)
+      tuple => SystemUser(id = tuple._1, role = tuple._2, email = tuple._3, password = tuple._4, fullName = tuple._5)
     }, {
       (u: SystemUser) => Some {
-        (u.id, u.userId, u.role)
+        (u.id, u.role, u.email, u.password, u.fullName)
       }
     })
   }
 
-  def userId = column[String]("userId")
+  def role = column[Role]("role")
 
-  def role = column[String]("role")
+  def email = column[String]("email")
 
-  def userIdIdx = index("idx_userId", userId, unique = true)
+  def password = column[String]("password")
+
+  def fullName = column[Option[String]]("full_name")
+
+  def emailIdx = index("idx_userEmailId", email, unique = true)
 }

@@ -1,5 +1,6 @@
 package repositories
 
+import models.Role.Guest
 import models.db.SystemUser
 import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
 import play.api.db.slick.DB
@@ -13,11 +14,11 @@ class SystemUsersRepositoryTest extends PlaySpecification {
       DB.withSession { implicit session: Session =>
         val usersRepository = SystemUserRepository
 
-        val user = SystemUser(None, "userId", "theRole")
+        val user = SystemUser(None, Guest, "user@email", "password", Some("fullName"))
         val userId = usersRepository save user
         val userOpt = usersRepository findById userId
 
-        userOpt.map(_.userId) shouldEqual Some(user.userId)
+        userOpt.map(_.email) shouldEqual Some(user.email)
         userOpt.map(_.role) shouldEqual Some(user.role)
       }
     }
@@ -26,11 +27,11 @@ class SystemUsersRepositoryTest extends PlaySpecification {
       DB.withSession { implicit session: Session =>
         val usersRepository = SystemUserRepository
 
-        val user = SystemUser(None, "theUserId", "theRole")
+        val user = SystemUser(None, Guest, "user@email", "password", Some("fullName"))
         val userId = usersRepository save user
-        val userOpt = usersRepository findByUserId  "theUserId"
+        val userOpt = usersRepository findByEmail   "user@email"
 
-        userOpt.map(_.userId) shouldEqual Some(user.userId)
+        userOpt.map(_.email) shouldEqual Some(user.email)
         userOpt.map(_.role) shouldEqual Some(user.role)
       }
     }

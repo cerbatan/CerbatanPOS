@@ -1,0 +1,87 @@
+@(form: Form[Option[models.db.SystemUser]])(implicit flash: Flash)
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>Cerbatán POS</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.min.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    </head>
+    <body id="app" class="app body-wide">
+        <div class="main-container">
+            <section data-ng-view
+            id="content"
+            class="content-container animate-fade-up">
+
+                <div class="page-signin">
+
+                    <div class="signin-header">
+                        <section class="logo text-center">
+                                <img src="@routes.Assets.versioned("images/cerbatan-logo.png")" class="c-img-responsive app-logo" alt="Conxole Admin"/>
+                                <h1 class="c-login-title">Cerbatán POS</h1>
+                        </section>
+                    </div>
+
+                    <div class="signin-body">
+                        <div class="container">
+                            <div class="form-container">
+
+                                @helper.form(controllers.routes.MainController.authenticate, 'class -> "form-horizontal") {
+                                    <fieldset>
+                                        <div class="form-group">
+                                            <span class="glyphicon glyphicon-envelope"></span>
+                                            <input type="email" name="email"
+                                            class="form-control input-lg input-round text-center"
+                                            placeholder="Username"
+                                            >
+                                        </div>
+                                        <div class="form-group">
+                                            <span class="glyphicon glyphicon-lock"></span>
+                                            <input type="password" name="password"
+                                            class="form-control input-lg input-round text-center"
+                                            placeholder="Password"
+                                            >
+                                        </div>
+
+
+
+                                        <div class="form-group">
+                                            <button class="btn btn-info btn-lg btn-round btn-block text-center" type="submit" id="loginbutton"><span class="glyphicon glyphicon-ok"></span></button>
+                                            @*<a href="#/" class="btn btn-primary btn-lg btn-round btn-block text-center">*@
+                                            @*Log in</a>*@
+                                        </div>
+                                    </fieldset>
+                                }
+
+
+                                <section>
+                                    @form.globalError.map { error =>
+                                        <p class="text-center text-danger">
+                                            @error.message
+                                        </p>
+                                    }
+
+                                    @flash.get("success").map { message =>
+                                        <p class="text-center text-success">
+                                            @message
+                                        </p>
+                                    }
+                                    @*<p class="text-center"><a href="#/pages/forgot-password">Forgot your password?</a></p>*@
+                                    @*<p class="text-center text-muted text-small">*@
+                                        @*Don't have an account yet? <a href="#/pages/signup">Sign up</a></p>*@
+                                </section>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </body>
+</html>
