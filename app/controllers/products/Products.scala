@@ -15,4 +15,8 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     val user = loggedIn
     Ok(views.html.products.productForm("Add Product"))
   }
+
+  def brands(query: Option[String]) = StackAction(AuthorityKey -> Seller) { implicit request =>
+    Ok("[{\"id\": 1, \"name\": \"Merk\"}, {\"id\": 2, \"name\": \"Bayer\"}]").as(JAVASCRIPT)
+  }
 }

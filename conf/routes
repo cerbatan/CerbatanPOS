@@ -7,16 +7,19 @@ GET         /login                controllers.MainController.login
 POST        /login                controllers.MainController.authenticate
 GET         /logout               controllers.MainController.logout
 
+GET         /jsRoutes.js          controllers.Application.jsRoutes
+
 GET         /views/nav            controllers.Application.navigation
 GET         /views/header         controllers.Application.header
-GET         /sell           controllers.Application.sell
+GET         /sell                 controllers.Application.sell
 
-GET         /products           controllers.products.Products.products
-GET         /product/new           controllers.products.Products.newProduct
+GET         /products             controllers.products.Products.products
+GET         /product/new          controllers.products.Products.newProduct
+GET         /products/brands      controllers.products.Products.brands(q: Option[String])
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file        controllers.Assets.versioned(path="/public", file)
+GET         /assets/*file         controllers.Assets.versioned(path="/public", file)
 #GET         /assets/*file         controllers.Assets.at(path="/public", file)
 GET         /views/*file          controllers.Assets.at(path="/public/views/", file)
 

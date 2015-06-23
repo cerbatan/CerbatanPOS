@@ -13,6 +13,7 @@
 require([
     'jquery',
     'angular',
+    'angular-sanitize',
     'angular-route',
     'angular-animate',
     'angular-scroll',
@@ -20,7 +21,8 @@ require([
     'angular-tags-input',
     'angular-ui-select',
 
-    'common',
+    'app/routes',
+    'app/common',
     'main',
     'directives',
     'localize',
@@ -71,7 +73,7 @@ require([
                 .when('/', {redirectTo: '/sell'})
                 .when('/sell', {templateUrl: 'sell'})
                 .when('/products', {templateUrl: 'products', controller: 'ProductsCtrl'})
-                .when('/product/new', {templateUrl: 'product/new', controller: 'ProductsCtrl'})
+                .when('/product/new', {templateUrl: 'product/new', controller: 'NewProductCtrl'})
                 .when('/404', {templateUrl: 'views/pages/404.html'});
             //.otherwise({redirectTo: '/404'})
         }]);
