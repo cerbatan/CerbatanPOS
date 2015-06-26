@@ -26,10 +26,10 @@
                             <div class="col-sm-5">
                                 <ui-select ng-model="product.brand" id="productBrand"
                                 theme="bootstrap"
+                                on-select="brandSelected($select)"
                                 reset-search-input="false" >
-                                    <ui-select-match placeholder="Select Brand...">
-                                        {{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="brand in brands"
+                                    <ui-select-match placeholder="Select Brand...">{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="brand in brands | filter: $select.search"
                                     refresh="refreshBrands($select.search)"
                                     refresh-delay="0">
                                         <div ng-bind-html="brand.name | highlight: $select.search"></div>
@@ -185,3 +185,16 @@
         </form>
     </accordion>
 </section>
+
+<script type="text/ng-template" id="addBrandModal.html">
+    <div class="modal-header">
+        <h3>Add Brand!</h3>
+    </div>
+    <div class="modal-body">
+        <span i18n="Do you want to create a new brand called:"></span>&nbsp;<strong>{{ newBrandName }}</strong><span>?</span>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-info" ng-click="ok()" i18n="Yes"></button>
+        <button class="btn btn-warning" ng-click="cancel()" i18n="No"></button>
+    </div>
+</script>

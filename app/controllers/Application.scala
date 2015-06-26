@@ -26,7 +26,8 @@ object Application extends Controller with AuthElement with AuthConfiguration {
   def jsRoutes = StackAction(AuthorityKey -> Guest) { implicit request =>
     Ok(
       Routes.javascriptRouter("jsRoutes")(
-        controllers.products.routes.javascript.Products.brands
+        controllers.products.routes.javascript.Products.brands,
+        controllers.products.routes.javascript.Products.addBrand
       )
     ).as(JAVASCRIPT)
   }
