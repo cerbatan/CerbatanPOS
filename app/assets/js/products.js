@@ -42,9 +42,6 @@ require(['jquery', 'angular'], function ($, angular) {
     }
 
     angular.module('app.products', ['ngSanitize', 'ngTagsInput', 'ui.select', 'play.routing', 'app.common'])
-        //.config(['$routeProvider', function ($routeProvider) {
-        //
-        //}])
         .factory('ProductsSrv', function () {
 
             return {
@@ -58,7 +55,7 @@ require(['jquery', 'angular'], function ($, angular) {
                 $location.path('/product/new');
             };
         }])
-        .controller('NewProductCtrl', ['$scope', '$log', '$modal', 'playRoutes', function ($scope, $log, $modal, routes) {
+        .controller('NewProductCtrl', ['$scope', '$filter', '$cacheFactory', '$log', '$modal', 'playRoutes', function ($scope, $filter, $cacheFactory, $log, $modal, routes) {
             function showAddBrandDialog(brandName) {
                 var modalInstance = $modal.open({
                     templateUrl: "addBrandModal.html",
@@ -77,6 +74,7 @@ require(['jquery', 'angular'], function ($, angular) {
 
             var lastSearch = " ";
             $scope.brands = [];
+            $scope.tags = [];
 
             $scope.refreshBrands = function (filter) {
                 if ((lastSearch.length === 0 && filter.length > 0) || filter.toLowerCase().indexOf(lastSearch.toLocaleLowerCase()) !== 0) {
@@ -100,18 +98,18 @@ require(['jquery', 'angular'], function ($, angular) {
 
             $scope.brandSelected = function (select) {
                 if (select.search) {
-                    if (!select.selected || select.selected.id == null || select.selected.name.toLowerCase().indexOf(select.search.toLocaleLowerCase()) !== 0) {
+                    if (!select.selected || select.selected.id == null || select.selected.name.toLowerCase().indexOf(select.search.toLocaleLowerCase()) === -1) {
                         var newBrandName = select.search;
                         showAddBrandDialog(newBrandName).result.then(
                             function () {
-                                $log.info("Adding")
+                                $log.info("Adding Brand");
                                 routes.controllers.products.Products.addBrand().put({name: newBrandName})
                                     .success(function (brand) {
                                         $scope.product.brand = brand;
                                     })
                                     .error(function () {
-                                        $log.warning("Failed brand creation")
-                                    })
+                                        $log.warning("Failed brand creation");
+                                    });
                             },
                             function () {
                                 select.selected = null;
@@ -121,6 +119,28 @@ require(['jquery', 'angular'], function ($, angular) {
                 }
 
                 select.search = '';
+            };
+
+            $scope.loadTags = function($query) {
+                return routes.controllers.products.Products.tags().get({ cache: true}).then(function(response) {
+                    return $filter('filter')(response.data, $query);
+                });
+            };
+
+            $scope.handleAddingTag = function($tag){
+                if ( $tag.id == undefined || $tag.id == null ){
+                    $log.info("Adding Tag");
+                    routes.controllers.products.Products.addTag().put({name: $tag.name})
+                        .success(function (tag) {
+                            $scope.product.tags.pop();
+                            $scope.product.tags.push(tag);
+                            $cacheFactory.get('$http').remove(routes.controllers.products.Products.tags().url);
+                        })
+                        .error(function () {
+                            $scope.product.tags.pop();
+                            $log.warning("Failed tag creation");
+                        });
+                }
             };
         }])
 
