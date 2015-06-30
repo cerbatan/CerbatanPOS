@@ -19,6 +19,7 @@ GET         /products/brands            controllers.products.Products.brands(q: 
 PUT         /products/brands/new        controllers.products.Products.addBrand
 GET         /products/tags              controllers.products.Products.tags
 PUT         /products/tags/new          controllers.products.Products.addTag
+GET         /products/taxes              controllers.products.Products.taxes
 
 
 # Map static resources from the /public folder to the /assets URL path

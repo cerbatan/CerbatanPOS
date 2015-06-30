@@ -3,7 +3,7 @@
 <section class="page">
     <accordion close-others="false">
         <p class="size-h3" i18n="@title"></p>
-        <form class="form-horizontal" role="form">
+        <div class="form-horizontal">
 
             <div class="panel panel-default">
                 <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> <span data-i18n="Details"></span></strong></div>
@@ -23,13 +23,12 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label" for="productBrand" i18n="Brand"></label>
-                            <div class="col-sm-5">
-                                <div class="row">
-                                    <div class="col-xs-11 c-no-padding-right">
+                            <div class="col-sm-7 col-xs-12">
+                                    <div class="c-row-group">
                                         <ui-select ng-model="product.brand" id="productBrand"
                                         theme="bootstrap"
                                         on-select="brandSelected($select)"
-                                        reset-search-input="false" >
+                                        reset-search-input="false" class="c-row-group-element-main c-short-padding-right">
                                             <ui-select-match allow-clear placeholder="Select Brand...">{{$select.selected.name}}</ui-select-match>
                                             <ui-select-choices repeat="brand in brands | filter: $select.search"
                                             refresh="refreshBrands($select.search)"
@@ -37,17 +36,15 @@
                                                 <div ng-bind-html="brand.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
+                                        <div class="c-short-padding-left">
+                                            <button class="btn btn-default c-row-group-element" ng-click="addBrand()"><span class="glyphicon glyphicon-plus"></span></button>
+                                        </div>
                                     </div>
-                                    <div class="col-xs-1 c-no-padding-left">
-                                        <button class="btn btn-default"><span class="glyphicon glyphicon-plus"></span></button>
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label" for="productTags" i18n="Tags"></label>
-                            <div class="col-sm-5">
+                            <div class="col-sm-7">
                                 <tags-input ng-model="product.tags" display-property="name" key-property="id" replace-spaces-with-dashes="false" class="ui-tags-input" id="productTags" on-tag-adding="handleAddingTag($tag)" placeholder="...">
                                     <auto-complete source="loadTags($query)" min-length="0" load-on-focus="true"
                                     load-on-empty="false" max-results-to-show="32"></auto-complete>
@@ -70,14 +67,14 @@
                                     <label class="control-label" for="productMarkup"><span i18n="Cost"></span>&nbsp;&nbsp;<small i18n="(No Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
-                                        <input id="productCost" class="form-control" type="text" ng-model="model.cost" money ngMaxlength="17">
+                                        <input id="productCost" class="form-control" type="text" ng-model="model.cost" money ngMaxlength="17" interpret="true">
                                     </div>
                                 </div>
 
                                 <div class="col-sm-4">
                                     <label class="control-label" for="productMarkup" i18n="Markup"></label>
                                     <div class="input-group">
-                                        <input id="productMarkup" class="form-control" type="text" ng-model="model.cost" money mgMaxlength="8">
+                                        <input id="productMarkup" class="form-control" type="text" ng-model="model.markup" money mgMaxlength="8" precision="2">
                                         <span class="input-group-addon">%</span>
                                     </div>
                                 </div>
@@ -193,7 +190,7 @@
             </accordion-group>
 
             <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        </div>
     </accordion>
 </section>
 
@@ -202,10 +199,22 @@
 <h3>Add Brand!</h3>
 </div>
 <div class="modal-body">
-<span i18n="Do you want to create a new brand called:"></span> &nbsp; <strong>{{ newBrandName }}</strong> <span>?</span>
+    <div ng-hide="showInput">
+        <span i18n="Do you want to create a new brand called:"></span> &nbsp; <strong>{{ newBrandName }}</strong> <span>?</span>
+    </div>
+    <div ng-show="showInput">
+    <form class="form-horizontal" role="form">
+        <div class="form-group">
+            <div class="col-xs-8">
+                <label class="control-label" for="newBrand" i18n="Brand Name"></label>
+                <input id="newBrand" class="form-control" type="text" ng-model="newBrandName" min="1" ng-change="inputChange()" autofocus>
+            </div>
+        </div>
+    </form>
+    </div>
 </div>
 <div class="modal-footer">
-<button class="btn btn-info" ng-click="ok()" i18n="Yes"></button>
-<button class="btn btn-warning" ng-click="cancel()" i18n="No"></button>
+<button class="btn btn-info" ng-click="ok()" i18n="Add" ng-disabled="disableSave" accesskey="A"></button>
+<button class="btn btn-warning" ng-click="cancel()" i18n="Cancel"></button>
 </div>
 </script>

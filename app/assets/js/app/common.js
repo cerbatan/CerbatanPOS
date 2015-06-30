@@ -29,35 +29,51 @@ require(['jquery', 'angular'], function ($, angular) {
                         value = '';
                     }
 
-                    // Handle leading decimal point, like ".5"
-                    if (value.indexOf('.') === 0) {
-                        value = '0' + value;
-                    }
 
-                    // Allow "-" inputs only when min < 0
-                    if (value.indexOf('-') === 0) {
-                        if (min >= 0) {
-                            value = null;
-                            ngModelCtrl.$setViewValue('');
-                            ngModelCtrl.$render();
-                        } else if (value === '-') {
-                            value = '';
+
+                    if( attrs.interpret && attrs.interpret === "true" ){
+                        try {
+                            var evaluatedValue = eval(value.replace(/([\+\-\*]{1})\s*(\d+|(?:\d*(?:\.\d*)))%/g, "*(1$1$2/100)"));
+                            ngModelCtrl.$setValidity('number', true);
+                            return evaluatedValue;
+                        }catch(e){
+                            ngModelCtrl.$setValidity('number', false);
                         }
-                    }
-
-                    var empty = ngModelCtrl.$isEmpty(value);
-                    if (empty || NUMBER_REGEXP.test(value)) {
-                        lastValidValue = (value === '')
-                            ? null
-                            : (empty ? value : parseFloat(value));
+                        return value;
                     } else {
-                        // Render the last valid input in the field
-                        ngModelCtrl.$setViewValue(formatViewValue(lastValidValue));
-                        ngModelCtrl.$render();
+                        // Handle leading decimal point, like ".5"
+                        if (value.indexOf('.') === 0) {
+                            value = '0' + value;
+                        }
+
+                        // Allow "-" inputs only when min < 0
+                        if (value.indexOf('-') === 0) {
+                            if (min >= 0) {
+                                value = null;
+                                ngModelCtrl.$setViewValue('');
+                                ngModelCtrl.$render();
+                            } else if (value === '-') {
+                                value = '';
+                            }
+                        }
+
+                        var reg = /(\d+|(?:\d*(?:\.\d*)))(?:(?:[\+\-\*\\]?)(\d+|(?:\d*(?:\.\d*))))/.exec("100+1%")
+                        var empty = ngModelCtrl.$isEmpty(value);
+                        if (empty || NUMBER_REGEXP.test(value)) {
+                            lastValidValue = (value === '')
+                                ? null
+                                : (empty ? value : parseFloat(value));
+                        } else {
+                            // Render the last valid input in the field
+                            ngModelCtrl.$setViewValue(formatViewValue(lastValidValue));
+                            ngModelCtrl.$render();
+                        }
+
+                        ngModelCtrl.$setValidity('number', true);
+                        return lastValidValue;
                     }
 
-                    ngModelCtrl.$setValidity('number', true);
-                    return lastValidValue;
+
                 });
                 ngModelCtrl.$formatters.push(formatViewValue);
 

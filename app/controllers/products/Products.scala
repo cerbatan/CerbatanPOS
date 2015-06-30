@@ -8,7 +8,7 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.libs.json._
 import play.api.mvc.{BodyParsers, Controller}
-import repositories.{BrandsRepository, TagsRepository}
+import repositories.{TaxesRepository, BrandsRepository, TagsRepository}
 import common.format.products._
 
 object Products extends Controller with AuthElement with AuthConfiguration {
@@ -86,4 +86,11 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     }
   }
 
+  def taxes = StackAction(AuthorityKey -> Seller) { implicit request =>
+    DB.withSession { implicit session: Session =>
+      val tags = TaxesRepository.findAll()
+
+      Ok(Json.toJson(tags))
+    }
+  }
 }

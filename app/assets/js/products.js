@@ -50,19 +50,24 @@ require(['jquery', 'angular'], function ($, angular) {
                 }
             };
         })
+
         .controller('ProductsCtrl', ['$scope', '$location', function ($scope, $location) {
             $scope.goToAddProduct = function () {
                 $location.path('/product/new');
             };
         }])
+
         .controller('NewProductCtrl', ['$scope', '$filter', '$cacheFactory', '$log', '$modal', 'playRoutes', function ($scope, $filter, $cacheFactory, $log, $modal, routes) {
-            function showAddBrandDialog(brandName) {
+            function showAddBrandDialog(brandName, showInput) {
                 var modalInstance = $modal.open({
                     templateUrl: "addBrandModal.html",
                     controller: 'NewBrandModalCtrl',
                     resolve: {
                         newBrandName: function () {
                             return brandName;
+                        },
+                        showInput: function(){
+                            return showInput === true;
                         }
                     }
                 });
@@ -121,6 +126,24 @@ require(['jquery', 'angular'], function ($, angular) {
                 select.search = '';
             };
 
+            $scope.addBrand = function(){
+                showAddBrandDialog("", true).result.then(
+                    function (newBrandName) {
+                        $log.info("Adding Brand");
+                        routes.controllers.products.Products.addBrand().put({name: newBrandName})
+                            .success(function (brand) {
+                                $scope.product.brand = brand;
+                            })
+                            .error(function () {
+                                $log.warning("Failed brand creation");
+                            });
+                    },
+                    function () {
+
+                    }
+                );
+            };
+
             $scope.loadTags = function($query) {
                 return routes.controllers.products.Products.tags().get({ cache: true}).then(function(response) {
                     return $filter('filter')(response.data, $query);
@@ -144,10 +167,15 @@ require(['jquery', 'angular'], function ($, angular) {
             };
         }])
 
-        .controller('NewBrandModalCtrl', ['$scope', '$log', '$modalInstance', 'newBrandName', function ($scope, $log, $modalInstance, newBrandName) {
+        .controller('NewBrandModalCtrl', ['$scope', '$log', '$modalInstance', 'newBrandName', 'showInput', function ($scope, $log, $modalInstance, newBrandName, showInput) {
             $scope.newBrandName = newBrandName;
+            $scope.showInput = showInput;
+            $scope.disableSave = showInput;
+            $scope.inputChange = function(){
+                $scope.disableSave = ($scope.newBrandName.length <= 1);
+            };
             $scope.ok = function () {
-                $modalInstance.close();
+                $modalInstance.close($scope.newBrandName);
             };
 
             $scope.cancel = function () {

@@ -1,6 +1,6 @@
 package common.format
 
-import models.db.{Brand, BrandId, Tag, TagId}
+import models.db._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -14,4 +14,10 @@ package object products {
     (__ \ "id").write[Option[TagId]] and
       (__ \ "name").write[String]
     )(unlift(Tag.unapply))
+
+  implicit val taxWrites: Writes[Tax] = (
+    (__ \ "id").write[Option[TaxId]] and
+      (__ \ "name").write[String] and
+      (__ \ "percentage").write[Float]
+    )(unlift(Tax.unapply))
 }
