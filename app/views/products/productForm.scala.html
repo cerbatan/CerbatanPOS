@@ -12,13 +12,13 @@
                         <div class="form-group">
                             <label for="productSku" class="col-sm-2 control-label" i18n="Bar Code"></label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="productSku" ng-model="product.sku" i18n="i18n-placeholder" placeholder="Product SKU or Bar Code">
+                                <input type="text" class="form-control" id="productSku" ng-model="product.sku" i18n="i18n-placeholder" placeholder="Product SKU or Bar Code" autofocus>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="productName" class="col-sm-2 control-label" i18n="Name"></label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="productName" ng-model="product.name" i18n="i18n-placeholder" placeholder="Product Name" autofocus>
+                                <input type="text" class="form-control" id="productName" ng-model="product.name" i18n="i18n-placeholder" placeholder="Product Name">
                             </div>
                         </div>
                         <div class="form-group">
@@ -67,14 +67,14 @@
                                     <label class="control-label" for="productMarkup"><span i18n="Cost"></span>&nbsp;&nbsp;<small i18n="(No Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
-                                        <input id="productCost" class="form-control" type="text" ng-model="model.cost" money ngMaxlength="17" interpret="true">
+                                        <input id="productCost" class="form-control" type="text" ng-model="product.cost" money ngMaxlength="17" interpret="true">
                                     </div>
                                 </div>
 
                                 <div class="col-sm-4">
                                     <label class="control-label" for="productMarkup" i18n="Markup"></label>
                                     <div class="input-group">
-                                        <input id="productMarkup" class="form-control" type="text" ng-model="model.markup" money mgMaxlength="8" precision="2">
+                                        <input id="productMarkup" class="form-control" type="text" ng-model="product.markup" money mgMaxlength="8" precision="2">
                                         <span class="input-group-addon">%</span>
                                     </div>
                                 </div>
@@ -82,7 +82,7 @@
                                     <label class="control-label" for="productMarkup"><span i18n="Price"></span>&nbsp;&nbsp;<small i18n="(No Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
-                                        <input id="productMarkup" class="form-control" type="text" ng-model="model.cost" money mgMaxlength="8">
+                                        <input id="productMarkup" class="form-control" type="text" ng-model="product.price" money mgMaxlength="8">
                                     </div>
                                 </div>
                             </div>

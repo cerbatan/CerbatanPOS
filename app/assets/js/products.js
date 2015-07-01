@@ -165,6 +165,25 @@ require(['jquery', 'angular'], function ($, angular) {
                         });
                 }
             };
+
+            $scope.$watch('product.cost', function () {
+                $scope.product.price = $scope.product.cost*(1.0 + $scope.product.markup/100.0);
+            });
+
+            $scope.$watch('product.markup', function () {
+                var newPrice = $scope.product.cost*(1.0 + $scope.product.markup/100.0);
+                if ( $scope.product.price !== newPrice ){
+                    $scope.product.price = newPrice;
+                }
+            });
+
+            $scope.$watch('product.price', function () {
+                var newMarkup = ($scope.product.price/$scope.product.cost-1.0)*100.0;
+                if ( newMarkup !== $scope.product.markup ){
+                    $scope.product.markup = newMarkup;
+                }
+            });
+
         }])
 
         .controller('NewBrandModalCtrl', ['$scope', '$log', '$modalInstance', 'newBrandName', 'showInput', function ($scope, $log, $modalInstance, newBrandName, showInput) {
