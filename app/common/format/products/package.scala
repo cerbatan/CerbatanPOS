@@ -20,4 +20,10 @@ package object products {
       (__ \ "name").write[String] and
       (__ \ "percentage").write[Float]
     )(unlift(Tax.unapply))
+
+  implicit val taxReads: Reads[Tax] = (
+    (__ \ "id").read[Option[TaxId]] and
+      (__ \ "name").read[String] and
+      (__ \ "percentage").read[Float]
+    )(Tax.apply _)
 }

@@ -89,24 +89,21 @@
                             <hr>
                             <div class="row">
                                 <div class="col-sm-4 col-sm-offset-4">
-                                    <label class="control-label" for="productBrand" i18n="Tax"></label>
-                                    <ui-select ng-model="address.selected" id="productBrand"
-                                    theme="bootstrap"
-                                    reset-search-input="false" >
+                                    <label class="control-label" for="productTax" i18n="Tax"></label>
+                                    <ui-select ng-model="product.tax" id="productTax"
+                                    theme="bootstrap" on-select="taxSelected($select)">
                                         <ui-select-match placeholder="Select Tax...">
-                                            {{$select.selected.formatted_address}}</ui-select-match>
-                                        <ui-select-choices repeat="address in addresses track by $index"
-                                        refresh="refreshAddresses($select.search)"
-                                        refresh-delay="0">
-                                            <div ng-bind-html="address.formatted_address | highlight: $select.search"></div>
+                                            {{$select.selected.name}} ({{$select.selected.percentage}}%)</ui-select-match>
+                                        <ui-select-choices repeat="tax in taxes track by $index">
+                                            <span ng-bind-html="tax.name"></span><span ng-if="tax.id != null" ng-bind-html="' (' + tax.percentage + '%)'"></span>
                                         </ui-select-choices>
                                     </ui-select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="control-label" for="productMarkup"><span i18n="Total Price"></span>&nbsp;&nbsp;<small i18n="(After Taxes)" class="c-label-subscript"></small></label>
+                                    <label class="control-label" for="retailPrice"><span i18n="Total Price"></span>&nbsp;&nbsp;<small i18n="(After Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
-                                        <input id="productMarkup" class="form-control" type="text" ng-model="model.cost" money mgMaxlength="8">
+                                        <input id="retailPrice" class="form-control" type="text" ng-model="product.retailPrice" money mgMaxlength="8">
                                     </div>
                                 </div>
                             </div>
@@ -217,4 +214,28 @@
 <button class="btn btn-info" ng-click="ok()" i18n="Add" ng-disabled="disableSave" accesskey="A"></button>
 <button class="btn btn-warning" ng-click="cancel()" i18n="Cancel"></button>
 </div>
+</script>
+
+<script type="text/ng-template" id="addTaxModal.html">
+    <div class="modal-header">
+        <h3 i18n="Add Tax"></h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" role="form">
+            <div class="row">
+                <div class="col-sm-5 col-sm-offset-1">
+                    <label class="control-label" for="newTax" i18n="Name"></label>
+                    <input id="newTax" class="form-control" type="text" ng-model="newTax.name" min="1" ng-change="inputChange()" focus-here>
+                </div>
+                <div class="col-sm-3 col-sm-offset-1">
+                    <label class="control-label" for="newTaxPercentage" i18n="Percentage"></label>
+                    <input id="newTaxPercentage" class="form-control" type="text" ng-model="newTax.percentage" money mgMaxlength="8" precision="2">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-info" ng-click="ok()" i18n="Add" ng-disabled="disableSave" accesskey="A"></button>
+        <button class="btn btn-warning" ng-click="cancel()" i18n="Cancel"></button>
+    </div>
 </script>

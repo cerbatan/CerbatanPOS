@@ -57,7 +57,7 @@ require(['jquery', 'angular'], function ($, angular) {
             };
         }])
 
-        .controller('NewProductCtrl', ['$scope', '$filter', '$cacheFactory', '$log', '$modal', 'playRoutes', function ($scope, $filter, $cacheFactory, $log, $modal, routes) {
+        .controller('NewProductCtrl', ['$scope', '$filter', '$cacheFactory', '$log', '$modal', 'playRoutes', 'localize', function ($scope, $filter, $cacheFactory, $log, $modal, routes, localize) {
             function showAddBrandDialog(brandName, showInput) {
                 var modalInstance = $modal.open({
                     templateUrl: "addBrandModal.html",
@@ -66,7 +66,7 @@ require(['jquery', 'angular'], function ($, angular) {
                         newBrandName: function () {
                             return brandName;
                         },
-                        showInput: function(){
+                        showInput: function () {
                             return showInput === true;
                         }
                     }
@@ -75,11 +75,19 @@ require(['jquery', 'angular'], function ($, angular) {
                 return modalInstance;
             }
 
+            function showAddTaxDialog() {
+                return $modal.open({
+                    templateUrl: "addTaxModal.html",
+                    controller: 'AddTaxModalCtrl'
+                });
+            }
+
             $scope.product = new Product();
 
             var lastSearch = " ";
             $scope.brands = [];
             $scope.tags = [];
+            getTaxes();
 
             $scope.refreshBrands = function (filter) {
                 if ((lastSearch.length === 0 && filter.length > 0) || filter.toLowerCase().indexOf(lastSearch.toLocaleLowerCase()) !== 0) {
@@ -91,8 +99,8 @@ require(['jquery', 'angular'], function ($, angular) {
 
                         $scope.brands = brands;
                     })
-                } else if ( this.$select.items.length === 0 || this.$select.items[0].id == null ) {
-                    if ( this.$select.items.length > 1 && this.$select.items[0].id == null ){
+                } else if (this.$select.items.length === 0 || this.$select.items[0].id == null) {
+                    if (this.$select.items.length > 1 && this.$select.items[0].id == null) {
                         $scope.brands.shift();
                     } else if ($scope.brands.length > 0 && $scope.brands[0].id == null)
                         $scope.brands[0].name = filter;
@@ -126,7 +134,7 @@ require(['jquery', 'angular'], function ($, angular) {
                 select.search = '';
             };
 
-            $scope.addBrand = function(){
+            $scope.addBrand = function () {
                 showAddBrandDialog("", true).result.then(
                     function (newBrandName) {
                         $log.info("Adding Brand");
@@ -144,14 +152,14 @@ require(['jquery', 'angular'], function ($, angular) {
                 );
             };
 
-            $scope.loadTags = function($query) {
-                return routes.controllers.products.Products.tags().get({ cache: true}).then(function(response) {
+            $scope.loadTags = function ($query) {
+                return routes.controllers.products.Products.tags().get({cache: true}).then(function (response) {
                     return $filter('filter')(response.data, $query);
                 });
             };
 
-            $scope.handleAddingTag = function($tag){
-                if ( $tag.id == undefined || $tag.id == null ){
+            $scope.handleAddingTag = function ($tag) {
+                if ($tag.id == undefined || $tag.id == null) {
                     $log.info("Adding Tag");
                     routes.controllers.products.Products.addTag().put({name: $tag.name})
                         .success(function (tag) {
@@ -166,23 +174,98 @@ require(['jquery', 'angular'], function ($, angular) {
                 }
             };
 
+            var priceModifiedInternally = false;
+            var retailPriceModifiedInternally = false;
+            var markupModifiedInternally = false;
+
+            function updatePrice() {
+                priceModifiedInternally = true;
+                $scope.product.price = $scope.product.cost * (1.0 + $scope.product.markup / 100.0);
+            }
+
+            function updateRetailPrice() {
+                if ($scope.product.tax != null) {
+                    $scope.product.retailPrice = $scope.product.price * (1.0 + $scope.product.tax.percentage / 100.0);
+                } else {
+                    $scope.product.retailPrice = $scope.product.price;
+                }
+
+                retailPriceModifiedInternally = true;
+            }
+
             $scope.$watch('product.cost', function () {
-                $scope.product.price = $scope.product.cost*(1.0 + $scope.product.markup/100.0);
+                updatePrice();
+                updateRetailPrice();
             });
 
+
             $scope.$watch('product.markup', function () {
-                var newPrice = $scope.product.cost*(1.0 + $scope.product.markup/100.0);
-                if ( $scope.product.price !== newPrice ){
-                    $scope.product.price = newPrice;
+                if (!markupModifiedInternally) {
+                    updatePrice();
+                    updateRetailPrice();
                 }
+
+                markupModifiedInternally = false;
             });
 
             $scope.$watch('product.price', function () {
-                var newMarkup = ($scope.product.price/$scope.product.cost-1.0)*100.0;
-                if ( newMarkup !== $scope.product.markup ){
-                    $scope.product.markup = newMarkup;
+                if (!priceModifiedInternally) {
+                    markupModifiedInternally = true;
+                    $scope.product.markup = ($scope.product.price / $scope.product.cost - 1.0) * 100.0;
+                    updateRetailPrice();
                 }
+
+                priceModifiedInternally = false;
             });
+
+            $scope.$watch('product.tax', function () {
+                updateRetailPrice();
+            });
+
+            $scope.$watch('product.retailPrice', function () {
+                if (!retailPriceModifiedInternally) {
+                    priceModifiedInternally = true;
+                    markupModifiedInternally = true;
+
+                    if ($scope.product.tax != null) {
+                        $scope.product.price = $scope.product.retailPrice / (1.0 + $scope.product.tax.percentage / 100.0);
+                    }else{
+                        $scope.product.price = $scope.product.retailPrice;
+                    }
+
+                    $scope.product.markup = ($scope.product.price / $scope.product.cost - 1.0) * 100.0;
+                }
+
+                retailPriceModifiedInternally = false;
+            });
+
+            function getTaxes() {
+                routes.controllers.products.Products.taxes().get().success(function (taxes) {
+                    $scope.taxes = taxes;
+                    $scope.taxes.push(new Tax("--- " + localize.getLocalizedString("Add") + " ---", 0.0));
+                });
+            }
+
+            $scope.taxSelected = function (select) {
+                if (select.selected.id == null) {
+                    showAddTaxDialog().result.then(
+                        function (newTax) {
+                            $log.info("Adding Tax");
+                            routes.controllers.products.Products.addTax().put(newTax)
+                                .success(function (tax) {
+                                    $scope.product.tax = tax;
+                                    getTaxes();
+                                })
+                                .error(function () {
+                                    $log.warning("Failed tax creation");
+                                });
+                        },
+                        function () {
+                            select.selected = null;
+                        }
+                    );
+                }
+            };
 
         }])
 
@@ -190,11 +273,26 @@ require(['jquery', 'angular'], function ($, angular) {
             $scope.newBrandName = newBrandName;
             $scope.showInput = showInput;
             $scope.disableSave = showInput;
-            $scope.inputChange = function(){
+            $scope.inputChange = function () {
                 $scope.disableSave = ($scope.newBrandName.length <= 1);
             };
             $scope.ok = function () {
                 $modalInstance.close($scope.newBrandName);
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss();
+            };
+        }])
+
+        .controller('AddTaxModalCtrl', ['$scope', '$log', '$modalInstance', function ($scope, $log, $modalInstance) {
+            $scope.newTax = new Tax("", 0.0);
+            $scope.disableSave = true;
+            $scope.inputChange = function () {
+                $scope.disableSave = ($scope.newTax.name.length <= 1);
+            };
+            $scope.ok = function () {
+                $modalInstance.close($scope.newTax);
             };
 
             $scope.cancel = function () {

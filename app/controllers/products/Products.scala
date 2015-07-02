@@ -3,7 +3,7 @@ package controllers.products
 import controllers.AuthConfiguration
 import jp.t2v.lab.play2.auth.AuthElement
 import models.Role.{Administrator, Seller}
-import models.db.{Tag, Brand}
+import models.db.{Tax, Tag, Brand}
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.libs.json._
@@ -91,6 +91,22 @@ object Products extends Controller with AuthElement with AuthConfiguration {
       val tags = TaxesRepository.findAll()
 
       Ok(Json.toJson(tags))
+    }
+  }
+
+  def addTax = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    DB.withSession { implicit session: Session =>
+      val newTax = request.body.validate[Tax]
+
+      newTax.fold(
+        error => {
+          BadRequest
+        },
+        tax => {
+          val id = TaxesRepository.save(tax)
+          Ok(Json.toJson(tax.copy(id = Some(id))))
+        }
+      )
     }
   }
 }

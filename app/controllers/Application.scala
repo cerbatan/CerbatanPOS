@@ -29,7 +29,9 @@ object Application extends Controller with AuthElement with AuthConfiguration {
         controllers.products.routes.javascript.Products.brands,
         controllers.products.routes.javascript.Products.addBrand,
         controllers.products.routes.javascript.Products.tags,
-        controllers.products.routes.javascript.Products.addTag
+        controllers.products.routes.javascript.Products.addTag,
+        controllers.products.routes.javascript.Products.taxes,
+        controllers.products.routes.javascript.Products.addTax
       )
     ).as(JAVASCRIPT)
   }

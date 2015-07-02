@@ -30,13 +30,12 @@ require(['jquery', 'angular'], function ($, angular) {
                     }
 
 
-
-                    if( attrs.interpret && attrs.interpret === "true" ){
+                    if (attrs.interpret && attrs.interpret === "true") {
                         try {
                             var evaluatedValue = eval(value.replace(/([\+\-\*]{1})\s*(\d+|(?:\d*(?:\.\d*)))%/g, "*(1$1$2/100)"));
                             ngModelCtrl.$setValidity('number', true);
                             return evaluatedValue;
-                        }catch(e){
+                        } catch (e) {
                             ngModelCtrl.$setValidity('number', false);
                         }
                         return value;
@@ -77,7 +76,7 @@ require(['jquery', 'angular'], function ($, angular) {
                 });
                 ngModelCtrl.$formatters.push(formatViewValue);
 
-                var minValidator = function(value) {
+                var minValidator = function (value) {
                     if (!ngModelCtrl.$isEmpty(value) && value < min) {
                         ngModelCtrl.$setValidity('min', false);
                         return undefined;
@@ -91,7 +90,7 @@ require(['jquery', 'angular'], function ($, angular) {
 
                 if (attrs.max) {
                     var max = parseFloat(attrs.max);
-                    var maxValidator = function(value) {
+                    var maxValidator = function (value) {
                         if (!ngModelCtrl.$isEmpty(value) && value > max) {
                             ngModelCtrl.$setValidity('max', false);
                             return undefined;
@@ -129,5 +128,16 @@ require(['jquery', 'angular'], function ($, angular) {
                 require: 'ngModel',
                 link: link
             };
-        });
+        })
+
+        .directive('focusHere', ['$timeout', function ($timeout) {
+            return {
+                link: function (scope, element, attrs) {
+                    $timeout(function () {
+                        element[0].focus();
+                    });
+                }
+            };
+        }]);
+    ;
 });
