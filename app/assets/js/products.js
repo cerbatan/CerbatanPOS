@@ -17,9 +17,11 @@ require(['jquery', 'angular'], function ($, angular) {
         this.percentage = percentage;
     }
 
-    function Fraction(name, sku) {
+    function Fraction(name, qty, price, sku) {
         this.id = null;
+        this.qty = qty;
         this.name = name;
+        this.price = price;
         this.sku = sku;
     }
 
@@ -38,6 +40,9 @@ require(['jquery', 'angular'], function ($, angular) {
         this.stockCount = null;
         this.alertStockLowLevel = false;
         this.stockAlertLevel = null;
+        /**
+         * @type {Fraction[]}
+         */
         this.fractions = [];
     }
 
@@ -236,7 +241,18 @@ require(['jquery', 'angular'], function ($, angular) {
                     $scope.product.markup = ($scope.product.price / $scope.product.cost - 1.0) * 100.0;
                 }
 
+
+                if ( $scope.product.fractions.length > 0 ){
+                    $scope.product.fractions[0].price = $scope.product.retailPrice;
+                }
+
                 retailPriceModifiedInternally = false;
+            });
+
+            $scope.$watch('product.sku', function () {
+                if ( $scope.product.fractions.length > 0 ){
+                    $scope.product.fractions[0].sku = $scope.product.sku;
+                }
             });
 
             function getTaxes() {
@@ -265,6 +281,22 @@ require(['jquery', 'angular'], function ($, angular) {
                         }
                     );
                 }
+            };
+
+            $scope.addFraction = function(){
+                if ( $scope.product.fractions.length == 0 ){
+                    $scope.product.fractions.push(new Fraction("Regular", 1, $scope.product.retailPrice, $scope.product.sku));
+                }
+
+                $scope.product.fractions.push(new Fraction(null, null, null));
+            };
+
+            $scope.removeFraction =  function(index){
+              if ( index == 1 &&  $scope.product.fractions.length <= 2 ){
+                  $scope.product.fractions = [];
+              } else {
+                  $scope.product.fractions.splice(index, 1);
+              }
             };
 
         }])
