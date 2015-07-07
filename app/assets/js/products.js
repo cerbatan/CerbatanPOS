@@ -30,16 +30,21 @@ require(['jquery', 'angular'], function ($, angular) {
         this.sku = null;
         this.name = null;
         this.brand = null;
+
+        /**
+         * @type {Tag[]}
+         */
         this.tags = [];
-        this.cost = null;
-        this.markup = null;
-        this.price = null;
+        this.cost = 0;
+        this.markup = 0;
+        this.price = 0;
         this.tax = null;
-        this.retailPrice = null;
+        this.retailPrice = 0;
         this.trackStock = true;
-        this.stockCount = null;
+        this.stockCount = 0;
         this.alertStockLowLevel = false;
-        this.stockAlertLevel = null;
+        this.stockAlertLevel = 0;
+
         /**
          * @type {Fraction[]}
          */
