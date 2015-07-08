@@ -155,7 +155,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-10 col-sm-offset-1">
-                                        <div ng-repeat="fraction in product.fractions track by $index">
+                                        <div ng-repeat="fraction in product.fractions track by $index" ng-controller="FractionCtrl">
                                             <div class="row c-margin-bottom-sm">
                                                 <div class="col-sm-4" ng-class="{ 'has-error' : productForm['fractionName'+$index].$invalid && !productForm['fractionName'+$index].$pristine }">
                                                     <label ng-if="$index==0" class="control-label" for="fractionName" i18n="Name"></label>
@@ -163,7 +163,7 @@
                                                 </div>
                                                 <div class="col-sm-2" ng-class="{ 'has-error' : productForm['fractionProportion'+$index].$invalid && !productForm['fractionProportion'+$index].$pristine }">
                                                     <label ng-if="$index==0" class="control-label" for="fractionProportion" i18n="Qty."></label>
-                                                    <input id="fractionProportion" name="fractionProportion{{$index}}" class="form-control" type="text" money mgMaxlength="6" ng-model="fraction.qty" ng-disabled="$index==0" i18n="i18n-placeholder" placeholder="Eg. 0.25" required>
+                                                    <input id="fractionProportion" name="fractionProportion{{$index}}" class="form-control" type="text" money mgMaxlength="6" ng-model="fraction.qty" ng-disabled="$index==0" interpret="true" i18n="i18n-placeholder" placeholder="Eg. 0.25" required>
                                                 </div>
                                                 <div class="col-sm-3" ng-class="{ 'has-error' : productForm['fractionPrice'+$index].$invalid && !productForm['fractionPrice'+$index].$pristine }">
                                                     <label ng-if="$index==0" class="control-label" for="fractionPrice" i18n="Price"></label>
@@ -198,8 +198,8 @@
                 <hr class="spacer-10"/>
                 <div class="row pull-right">
                 <div class="col-xs-12">
-                    <button type="submit" class="btn btn-info btn-w-lg btn-gap-v btn-round" ng-disabled="productForm.$invalid" i18n="Save"></button>
-                    <button type="button" class="btn btn-warning btn-w-lg btn-gap-v btn-round" i18n="Cancel"></button>
+                    <button type="submit" class="btn btn-info btn-w-lg btn-gap-v btn-round" ng-disabled="productForm.$invalid || saving" i18n="Save"></button>
+                    <button type="button" class="btn btn-default btn-w-lg btn-gap-v btn-round" i18n="Cancel" go-back></button>
                 </div>
                 </div>
             </div>
@@ -220,14 +220,14 @@
         <div class="form-group">
             <div class="col-xs-8">
                 <label class="control-label" for="newBrand" i18n="Brand Name"></label>
-                <input id="newBrand" class="form-control" type="text" ng-model="newBrandName" min="1" ng-change="inputChange()" autofocus>
+                <input id="newBrand" class="form-control" type="text" ng-model="newBrandName" min="1" ng-change="inputChange()" focus-here="showInput">
             </div>
         </div>
     </form>
     </div>
 </div>
 <div class="modal-footer">
-<button class="btn btn-info" ng-click="ok()" i18n="Add" ng-disabled="disableSave" accesskey="A"></button>
+<button class="btn btn-info" ng-click="ok()" i18n="Add" ng-disabled="disableSave" accesskey="A" focus-here="!showInput"></button>
 <button class="btn btn-warning" ng-click="cancel()" i18n="Cancel"></button>
 </div>
 </script>

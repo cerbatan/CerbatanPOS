@@ -129,11 +129,18 @@ require(['jquery', 'angular'], function ($, angular) {
             };
         })
 
-        .directive('focusHere', ['$timeout', function ($timeout) {
+        .directive('focusHere', ['$timeout', '$parse', function ($timeout, $parse) {
             return {
                 link: function (scope, element, attrs) {
-                    $timeout(function () {
-                        element[0].focus();
+                    var attrValue = attrs.focusHere.length === 0? "true": attrs.focusHere;
+                    var model = $parse(attrValue);
+                    scope.$watch(model, function(value) {
+                        console.log('value=',value);
+                        if(value === true) {
+                            $timeout(function() {
+                                element[0].focus();
+                            });
+                        }
                     });
                 }
             };
@@ -212,5 +219,20 @@ require(['jquery', 'angular'], function ($, angular) {
                     });
                 }
             };
-        });
+        })
+
+        .directive('goBack', [
+            function () {
+                return {
+                    restrict: "A",
+                    controller: [
+                        '$scope', '$element', '$window', function ($scope, $element, $window) {
+                            return $element.on('click', function () {
+                                return $window.history.back();
+                            });
+                        }
+                    ]
+                };
+            }
+        ]);
 });

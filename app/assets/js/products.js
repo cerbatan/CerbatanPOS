@@ -35,6 +35,7 @@ require(['jquery', 'angular'], function ($, angular) {
          * @type {Tag[]}
          */
         this.tags = [];
+
         this.cost = 0;
         this.markup = 0;
         this.price = 0;
@@ -97,6 +98,7 @@ require(['jquery', 'angular'], function ($, angular) {
             var lastSearch = " ";
             $scope.brands = [];
             $scope.tags = [];
+            $scope.saving = false;
             getTaxes();
 
             $scope.refreshBrands = function (filter) {
@@ -304,6 +306,17 @@ require(['jquery', 'angular'], function ($, angular) {
               }
             };
 
+            $scope.submitProduct = function(isValid){
+                $scope.saving = true;
+
+            };
+
+        }])
+
+        .controller('FractionCtrl', ['$scope', function ($scope) {
+            $scope.$watch("fraction.qty", function(){
+                $scope.fraction.price = $scope.$parent.$parent.product.retailPrice*$scope.fraction.qty;
+            });
         }])
 
         .controller('NewBrandModalCtrl', ['$scope', '$log', '$modalInstance', 'newBrandName', 'showInput', function ($scope, $log, $modalInstance, newBrandName, showInput) {
