@@ -17,7 +17,7 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     Ok(views.html.products.products())
   }
 
-  def newProduct = StackAction(AuthorityKey -> Administrator) { implicit request =>
+  def newProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
     val user = loggedIn
     Ok(views.html.products.productForm("Add Product"))
   }
