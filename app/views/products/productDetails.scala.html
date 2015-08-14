@@ -1,0 +1,59 @@
+<section class="page">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong> <span data-i18n="Product Details"></span></strong>
+            <div class="pull-right">
+                <button type="button" class="btn btn-info btn-w-xs btn-xs btn-gap-v btn-round"><span class="glyphicon glyphicon-edit"></span> <span data-i18n="Edit"></span></button>
+                <button type="button" class="btn btn-danger btn-w-xs btn-xs btn-gap-v btn-round"><span class="glyphicon glyphicon-remove"></span> <span data-i18n="Remove"></span></button>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="c-section-header text-info">
+                <span class="c-legend">{{product.name}}</span>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <dl class="dl-horizontal text-left">
+                        <dt i18n="SKU"></dt>
+                        <dd>{{product.sku}}</dd>
+                        <dt i18n="Brand"></dt>
+                        <dd>{{product.brand.name}}</dd>
+                        <dt i18n="Tags"></dt>
+                        <dd>{{tagsList()}}</dd>
+                        <dt i18n="In Stock"></dt>
+                        <dd>{{product.stockCount}}</dd>
+                    </dl>
+                </div>
+                <div class="col-sm-6">
+                    <dl class="dl-horizontal text-left">
+                        <dt i18n="Cost"></dt>
+                        <dd>{{product.cost | currency}}</dd>
+                        <dt i18n="Retail Price"></dt>
+                        <dd>{{product.retailPrice | currency}}</dd>
+                        <dt i18n="Tax" ng-if="product.tax!=null"></dt>
+                        <dd ng-if="product.tax!=null">{{product.tax.name}} ({{product.tax.percentage}}%)</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="c-section-header" ng-if="product.fractions != null && product.fractions.length>0">
+                <span class="c-legend-md">Fractions</span>
+            </div>
+            <table class="table" ng-if="product.fractions != null && product.fractions.length>0">
+                <thead>
+                    <th i18n="Name"></th>
+                    <th i18n="Qty"></th>
+                    <th i18n="Price"></th>
+                    <th i18n="SKU"></th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="fraction in product.fractions track by fraction.id">
+                        <td>{{fraction.name}}</td>
+                        <td>{{fraction.qty | number:2}}</td>
+                        <td>{{fraction.price | currency}}</td>
+                        <td>{{fraction.sku}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

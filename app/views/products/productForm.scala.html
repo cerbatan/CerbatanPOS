@@ -198,7 +198,7 @@
                 <hr class="spacer-10"/>
                 <div class="row pull-right">
                 <div class="col-xs-12">
-                    <button type="submit" class="btn btn-info btn-w-lg btn-gap-v btn-round" ng-disabled="productForm.$invalid || saving" i18n="Save"></button>
+                    <button type="button" class="btn btn-info btn-w-lg btn-gap-v btn-round" ng-disabled="productForm.$invalid || saving" ng-click="submitProduct(!productForm.$invalid)" i18n="Save"></button>
                     <button type="button" class="btn btn-default btn-w-lg btn-gap-v btn-round" i18n="Cancel" go-back></button>
                 </div>
                 </div>

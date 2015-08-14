@@ -15,6 +15,6 @@ class Items(tag: lifted.Tag) extends IdTable[ItemId, Item](tag, "items") {
   def sku = column[String]("sku")
   def name = column[String]("name")
   def brand = column[Option[BrandId]]("brand")
-  def skuIdx = index("idx_item_sku", name, unique = true)
-  def nameIdx = index("idx_item_name", name, unique = true)
+  def skuIdx = index("idx_item_sku", sku, unique = true)
+  def nameIdx = index("idx_item_name", name, unique = false)
 }

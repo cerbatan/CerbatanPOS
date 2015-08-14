@@ -39,6 +39,24 @@ package object products {
       (__ \ "percentage").read[Float]
     )(Tax.apply _)
 
+  implicit val fractionWrites: Writes[Fraction] = (
+    (__ \ "id").write[Option[FractionId]] and
+      (__ \ "item").write[Option[ItemId]] and
+      (__ \ "sku").write[String] and
+      (__ \ "name").write[String] and
+      (__ \ "price").write[Double] and
+      (__ \ "qty").write[Float]
+    )(unlift(Fraction.unapply))
+
+  implicit val fractionReads: Reads[Fraction] = (
+    (__ \ "id").read[Option[FractionId]] and
+      (__ \ "item").read[Option[ItemId]] and
+      (__ \ "sku").read[String] and
+      (__ \ "name").read[String] and
+      (__ \ "price").read[Double] and
+      (__ \ "qty").read[Float]
+    )(Fraction.apply _)
+
   implicit val productReads: Reads[Product] = (
     (__ \ "id").read[Option[ItemId]] and
       (__ \ "sku").read[String] and
@@ -52,6 +70,24 @@ package object products {
       (__ \ "trackStock").read[Boolean] and
       (__ \ "stockCount").read[Float] and
       (__ \ "alertStockLowLevel").read[Boolean] and
-      (__ \ "stockAlertLevel").read[Float]
+      (__ \ "stockAlertLevel").read[Float] and
+      (__ \ "fractions").read[List[Fraction]]
     )(Product.apply _ )
+
+  implicit val productWrites: Writes[Product] = (
+    (__ \ "id").write[Option[ItemId]] and
+      (__ \ "sku").write[String] and
+      (__ \ "name").write[String] and
+      (__ \ "brand").write[Option[Brand]] and
+      (__ \ "tags").write[List[Tag]] and
+      (__ \ "cost").write[Double] and
+      (__ \ "price").write[Double] and
+      (__ \ "tax").write[Option[Tax]] and
+      (__ \ "retailPrice").write[Double] and
+      (__ \ "trackStock").write[Boolean] and
+      (__ \ "stockCount").write[Float] and
+      (__ \ "alertStockLowLevel").write[Boolean] and
+      (__ \ "stockAlertLevel").write[Float] and
+      (__ \ "fractions").write[List[Fraction]]
+    )(unlift(Product.unapply))
 }

@@ -2,13 +2,14 @@ package controllers.products
 
 import controllers.AuthConfiguration
 import jp.t2v.lab.play2.auth.AuthElement
+import models.Product
 import models.Role.{Administrator, Seller}
-import models.db.{Tax, Tag, Brand}
+import models.db.{ItemId, Tax, Tag, Brand}
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.libs.json._
 import play.api.mvc.{BodyParsers, Controller}
-import repositories.{TaxesRepository, BrandsRepository, TagsRepository}
+import repositories.{ProductsRepository, TaxesRepository, BrandsRepository, TagsRepository}
 import common.format.products._
 
 object Products extends Controller with AuthElement with AuthConfiguration {
@@ -17,9 +18,42 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     Ok(views.html.products.products())
   }
 
-  def newProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+  def newProduct = StackAction(AuthorityKey -> Administrator) { implicit request =>
     val user = loggedIn
+
     Ok(views.html.products.productForm("Add Product"))
+  }
+
+  def productDetail = StackAction(AuthorityKey -> Seller) { implicit request =>
+    val user = loggedIn
+    Ok(views.html.products.productDetails())
+  }
+
+  def addProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    DB.withSession { implicit session: Session =>
+      val user = loggedIn
+
+      val newProduct = request.body.validate[Product]
+
+      newProduct.fold(
+        error => {
+          BadRequest
+        },
+        product => {
+          val id = ProductsRepository.save(product)
+          Ok(Json.toJson(id))
+        }
+      )
+    }
+  }
+
+  def getProduct(id: Long) = StackAction(AuthorityKey -> Seller) { implicit request =>
+    DB.withSession { implicit session: Session =>
+      val itemId = ItemId(id)
+      val product: Option[Product] = ProductsRepository.findById(itemId)
+
+      Ok(Json.toJson(product))
+    }
   }
 
   def brands(query: Option[String]) = StackAction(AuthorityKey -> Seller) { implicit request =>
@@ -109,4 +143,5 @@ object Products extends Controller with AuthElement with AuthConfiguration {
       )
     }
   }
+
 }

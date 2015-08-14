@@ -17,8 +17,9 @@ require(['jquery', 'angular'], function ($, angular) {
         this.percentage = percentage;
     }
 
-    function Fraction(name, qty, price, sku) {
+    function Fraction(name, item, qty, price, sku) {
         this.id = null;
+        this.item = item;
         this.qty = qty;
         this.name = name;
         this.price = price;
@@ -68,7 +69,7 @@ require(['jquery', 'angular'], function ($, angular) {
             };
         }])
 
-        .controller('NewProductCtrl', ['$scope', '$filter', '$cacheFactory', '$log', '$modal', 'playRoutes', 'localize', function ($scope, $filter, $cacheFactory, $log, $modal, routes, localize) {
+        .controller('NewProductCtrl', ['$scope', '$filter', '$cacheFactory', '$log', '$modal', 'playRoutes', '$location', 'localize', function ($scope, $filter, $cacheFactory, $log, $modal, routes, $location, localize) {
             function showAddBrandDialog(brandName, showInput) {
                 var modalInstance = $modal.open({
                     templateUrl: "addBrandModal.html",
@@ -110,7 +111,7 @@ require(['jquery', 'angular'], function ($, angular) {
                         }
 
                         $scope.brands = brands;
-                    })
+                    });
                 } else if (this.$select.items.length === 0 || this.$select.items[0].id == null) {
                     if (this.$select.items.length > 1 && this.$select.items[0].id == null) {
                         $scope.brands.shift();
@@ -292,10 +293,10 @@ require(['jquery', 'angular'], function ($, angular) {
 
             $scope.addFraction = function(){
                 if ( $scope.product.fractions.length == 0 ){
-                    $scope.product.fractions.push(new Fraction("Regular", 1, $scope.product.retailPrice, $scope.product.sku));
+                    $scope.product.fractions.push(new Fraction("Regular", $scope.product.id, 1, $scope.product.retailPrice, $scope.product.sku));
                 }
 
-                $scope.product.fractions.push(new Fraction(null, null, null));
+                $scope.product.fractions.push(new Fraction(null, $scope.product.id, null, null, null));
             };
 
             $scope.removeFraction =  function(index){
@@ -307,7 +308,19 @@ require(['jquery', 'angular'], function ($, angular) {
             };
 
             $scope.submitProduct = function(isValid){
-                $scope.saving = true;
+                if ( isValid ){
+                    $scope.saving = true;
+
+                    routes.controllers.products.Products.addProduct().put($scope.product)
+                        .success(function (productId) {
+                            $log.info("Product added " + productId);
+                            $location.path('/product/' + productId);
+                            $scope.saving = false;
+                        })
+                        .error(function () {
+                            $log.warning("Failed product creation");
+                        });
+                }
 
             };
 
@@ -347,6 +360,22 @@ require(['jquery', 'angular'], function ($, angular) {
 
             $scope.cancel = function () {
                 $modalInstance.dismiss();
+            };
+        }])
+
+        .controller('DetailProductCtrl', ['$scope', '$log', 'playRoutes', '$routeParams', 'localize', function ($scope, $log, routes, $routeParams, localize) {
+            routes.controllers.products.Products.getProduct($routeParams.id).get().success(function (product) {
+                $scope.product = product;
+            });
+
+            $scope.tagsList = function(){
+                if($scope.product != undefined && $scope.product != null){
+                    return $scope.product.tags.map(function(tag){
+                        return tag.name;
+                    }).join(', ');
+                }
+
+                return null;
             };
         }]);
 });

@@ -72,8 +72,9 @@ require([
             $routeProvider
                 .when('/', {redirectTo: '/sell'})
                 .when('/sell', {templateUrl: 'sell'})
-                .when('/products', {templateUrl: 'products', controller: 'ProductsCtrl'})
-                .when('/product/new', {templateUrl: 'product/new', controller: 'NewProductCtrl'})
+                .when('/products', {templateUrl: 'views/products', controller: 'ProductsCtrl'})
+                .when('/product/new', {templateUrl: 'views/product/new', controller: 'NewProductCtrl'})
+                .when('/product/:id', {templateUrl: 'views/product/detail', controller: 'DetailProductCtrl'})
                 .when('/404', {templateUrl: 'views/pages/404.html'});
             //.otherwise({redirectTo: '/404'})
         }]);
