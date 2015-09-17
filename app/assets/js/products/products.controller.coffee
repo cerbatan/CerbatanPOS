@@ -1,6 +1,6 @@
 'use strict'
 
-require(['jquery', 'angular']
+require(['jquery', 'angular', 'products/products.module']
   ($, angular) ->
     class Brand
       constructor: (@name) ->
@@ -22,7 +22,7 @@ require(['jquery', 'angular']
 
 
     class Fraction
-      constructor: (@name, @item, @qty, @price, @sku) ->
+      constructor: (@name, @item, @qty, @price) ->
         @id = null
 
 
@@ -67,7 +67,7 @@ require(['jquery', 'angular']
       .$inject = ['$location']
 
 
-    NewProductController = ($filter, $cacheFactory, $log, $modal, routes, $location, localize) ->
+    NewProductController = ($filter, $log, $modal, productsService, $location, localize, notifier, preparedTaxes) ->
       lastSearch = " "
 
       init = () =>
@@ -87,7 +87,6 @@ require(['jquery', 'angular']
         @taxSelected = taxSelected
         @retailPriceUpdated = retailPriceUpdated
         @taxChanged = taxChanged
-        @productSkuUpdated = productSkuUpdated
         @addFraction = addFraction
         @removeFraction = removeFraction
         @submitProduct = submitProduct
@@ -97,7 +96,7 @@ require(['jquery', 'angular']
         activate()
 
       activate = =>
-        getTaxes()
+        populateTaxes(preparedTaxes.data)
 
       showAddBrandDialog = (brandName, showInput) ->
         $modal.open
@@ -112,15 +111,19 @@ require(['jquery', 'angular']
         $modal.open
           templateUrl: "addTaxModal.html"
           controller: 'AddTaxModalCtrl'
+          controllerAs: 'modalCtrl'
 
       refreshBrands = ($select) =>
         filter = $select.search
         if (lastSearch.length == 0 and filter.length > 0) or filter.toLowerCase().indexOf(lastSearch.toLocaleLowerCase()) != 0
           lastSearch = filter
-          routes.controllers.products.Products.brands(filter).get().success (brands) =>
-            if brands.length == 0
-              brands.push new Brand(filter)
-            @brands = brands
+          productsService.getBrands(filter).then(
+            (response) =>
+              brands = response.data
+              if brands.length == 0
+                brands.push new Brand(filter)
+              @brands = brands
+          )
 
         else if $select.items.length == 0 or $select.items[0].id == null
           if $select.items.length > 1 and $select.items[0].id == null
@@ -134,45 +137,61 @@ require(['jquery', 'angular']
         if $select.search
           if !$select.selected or $select.selected.id == null or $select.selected.name.toLowerCase().indexOf($select.search.toLocaleLowerCase()) == -1
             newBrandName = $select.search
-            showAddBrandDialog(newBrandName).result.then =>
-              $log.info 'Adding Brand'
-              routes.controllers.products.Products.addBrand().put(name: newBrandName).success (brand) =>
-                @product.brand = brand
-              .error ->
-                $log.warning 'Failed brand creation'
-            , ->
-              $select.selected = null
+            showAddBrandDialog(newBrandName).result.then(
+              =>
+                $log.info 'Adding Brand'
+                productsService.addBrand(newBrandName).then(
+                  (response) =>
+                    @product.brand = response.data
+                  () ->
+                    $log.warning 'Failed brand creation'
+                )
+              ->
+                $select.selected = null
+            )
         $select.search = ''
 
       addBrand = =>
-        showAddBrandDialog('', true).result.then (newBrandName) =>
-          $log.info 'Adding Brand'
-          routes.controllers.products.Products.addBrand().put(name: newBrandName).success (brand) =>
-            @product.brand = brand
-          .error ->
-            $log.warning 'Failed brand creation'
-        , ->
+        showAddBrandDialog('', true).result.then(
+          (newBrandName) =>
+            $log.info 'Adding Brand'
+            productsService.addBrand(newBrandName).then(
+              (response) =>
+                @product.brand = response.data
+              ->
+                $log.warning 'Failed brand creation'
+            )
+          ->
+        )
 
       loadTags = ($query) ->
-        routes.controllers.products.Products.tags().get(cache: true).then (response) ->
+        productsService.getTags(true).then (response) ->
           $filter('filter') response.data, $query
 
       handleAddingTag = ($tag) =>
         if $tag.id == undefined or $tag.id == null
           $log.info 'Adding Tag'
-          routes.controllers.products.Products.addTag().put(name: $tag.name).success (tag) =>
-            @product.tags.pop()
-            @product.tags.push tag
-            $cacheFactory.get('$http').remove routes.controllers.products.Products.tags().url
-          .error =>
-            @product.tags.pop()
-            $log.warning 'Failed tag creation'
+          productsService.addTag($tag.name).then(
+            (response) =>
+              tag = response.data
+              @product.tags.pop()
+              @product.tags.push tag
+              productsService.flushTagsCache()
+            =>
+              @product.tags.pop()
+              $log.warning 'Failed tag creation'
+          )
 
 
       getTaxes = () =>
-        routes.controllers.products.Products.taxes().get().success (taxes) =>
-          @taxes = taxes
-          @taxes.push(new Tax("--- " + localize.getLocalizedString("Add") + " ---", 0.0))
+        productsService.getTaxes().then(
+          (response) ->
+            populateTaxes(response.data)
+        )
+
+      populateTaxes = (taxes) =>
+        @taxes = taxes
+        @taxes.push(new Tax("--- " + localize.getLocalizedString("Add") + " ---", 0.0))
 
       updatePrice = =>
         @product.price = @product.cost * (1.0 + @product.markup / 100.0)
@@ -182,6 +201,8 @@ require(['jquery', 'angular']
           @product.retailPrice = @product.price * (1.0 + @product.tax.percentage / 100.0)
         else
           @product.retailPrice = @product.price
+        refreshFractions()
+
 
       productCostUpdated = (isValid)->
         if isValid
@@ -198,16 +219,21 @@ require(['jquery', 'angular']
 
       taxSelected = (select) =>
         if select.selected.id == null
-          showAddTaxDialog().result.then (newTax) =>
-            $log.info 'Adding Tax'
-            routes.controllers.products.Products.addTax().put(newTax)
-              .success (tax) =>
-                @product.tax = tax
-                getTaxes()
-              .error ->
-                $log.warning 'Failed tax creation'
-          , ->
-            select.selected = null
+          showAddTaxDialog().result.then(
+            (newTax) =>
+              $log.info 'Adding Tax'
+              productsService.addTax(newTax).then(
+                (response) =>
+                  @product.tax = response.data
+                  taxChanged()
+                  getTaxes()
+                ->
+                  $log.warning 'Failed tax creation'
+              )
+            ->
+              select.selected = null
+          )
+
 
       taxChanged = updateRetailPrice
 
@@ -218,15 +244,19 @@ require(['jquery', 'angular']
           @product.price = @product.retailPrice
 
         @product.markup = (@product.price / @product.cost - 1.0) * 100.0
-        if @product.fractions.length > 0 then @product.fractions[0].price = @product.retailPrice
+        refreshFractions()
 
+      refreshFractions = =>
+        for f in @product.fractions
+          if f.price?
+            f.price = @product.retailPrice/f.qty if f.price < @product.retailPrice/f.qty
+          else
+            f.price = @product.retailPrice/f.qty if f.qty?
 
-      productSkuUpdated = =>
-        @product.fractions[0].sku = @product.sku unless @product.fractions.length == 0
 
       addFraction = =>
         if @product.fractions.length == 0
-          @product.fractions.push(new Fraction("Regular", @product.id, 1, @product.retailPrice, @product.sku))
+          @product.fractions.push(new Fraction("Regular", @product.id, 1, @product.retailPrice))
 
         @product.fractions.push(new Fraction(null, @product.id, null, null, null))
 
@@ -239,28 +269,32 @@ require(['jquery', 'angular']
       submitProduct = (isValid) =>
         if isValid
           @saving = true
-          routes.controllers.products.Products.addProduct()
-          .put($scope.product)
-            .success (productId) =>
-              $log.info("Product added " + productId);
-              $location.path('/product/' + productId);
-              @saving = false;
-            .error () ->
-              $log.warning("Failed product creation");
+          productsService.addProduct(@product).then(
+            (response) =>
+              productId = response.data
+              $log.info("Product added " + productId)
+              notifier.logSuccess localize.getLocalizedString("Product Added")
+              $location.path('/product/' + productId)
+              @saving = false
+            (errorResponse) =>
+              $log.warn("Failed product creation")
+              @saving = false
+              notifier.logError localize.getLocalizedString("Failed to create product.<br/>This SKU may already exist.")
+          )
 
       fractionProportionChanged = (index) =>
         fraction = @product.fractions[index]
-        fraction.price = @product.retailPrice*fraction.qty
+        fraction.price = @product.retailPrice/fraction.qty
 
       fractionPriceChanged = (index, validatorField) =>
         fraction = @product.fractions[index]
-        validatorField.$setValidity("fractionPriceGtRetailPrice", @product.retailPrice*fraction.qty <= fraction.price)
+        validatorField.$setValidity("fractionPriceGtRetailPrice", @product.retailPrice/fraction.qty <= fraction.price)
 
       init()
       return
 
     NewProductController
-      .$inject = ['$filter', '$cacheFactory', '$log', '$modal', 'playRoutes', '$location', 'localize' ]
+      .$inject = ['$filter','$log', '$modal', 'productsService', '$location', 'localize', 'notifier', 'preparedTaxes' ]
 
 
     NewBrandModalCtrl = ($modalInstance, newBrandName, showInput) ->
@@ -311,15 +345,16 @@ require(['jquery', 'angular']
       .$inject = ['$modalInstance']
 
 
-    DetailProductCtrl = ($log, routes, $routeParams, localize) ->
+    DetailProductCtrl = ($log, productsService, $routeParams, localize) ->
       init = () =>
         @tagsList = tagsList
         activate()
 
       activate = () =>
-        routes.controllers.products.Products.getProduct($routeParams.id).get()
-          .success (product) =>
-            @product = product
+        productsService.getProduct($routeParams.id).then(
+          (response) =>
+            @product = response.data
+        )
 
       tagsList = () =>
         if @product? then (tag.name for tag in @product.tags).join ', ' else null
@@ -328,16 +363,7 @@ require(['jquery', 'angular']
       return
 
     DetailProductCtrl
-      .$inject = ['$log', 'playRoutes', '$routeParams', 'localize']
-
-    angular
-    .module('app.products', [
-        'ngSanitize'
-        'ngTagsInput'
-        'ui.select'
-        'play.routing'
-        'app.common'
-      ])
+      .$inject = ['$log', 'productsService', '$routeParams', 'localize']
 
     angular
     .module('app.products')
@@ -358,4 +384,6 @@ require(['jquery', 'angular']
     angular
     .module('app.products')
     .controller('DetailProductCtrl', DetailProductCtrl)
+
+    return
 )

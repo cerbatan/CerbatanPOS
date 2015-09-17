@@ -12,7 +12,7 @@
                         <label for="productSku" class="col-sm-2 control-label" i18n="SKU"></label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="productSku"
-                            ng-model="ctrl.product.sku" ng-change="ctrl.productSkuUpdated()" i18n="i18n-placeholder" placeholder="Product SKU or Bar Code" autofocus>
+                            ng-model="ctrl.product.sku" i18n="i18n-placeholder" placeholder="Product SKU or Bar Code" autofocus>
                         </div>
                     </div>
                     <div class="form-group" ng-class="{ 'has-error' : productForm.name.$invalid && !productForm.name.$pristine }">
@@ -92,7 +92,7 @@
                                 <div class="col-sm-4 col-sm-offset-4">
                                     <label class="control-label" for="productTax" i18n="Tax"></label>
                                     <ui-select ng-model="ctrl.product.tax" ng-change="ctrl.taxChanged()" id="productTax"
-                                    theme="bootstrap" on-select="taxSelected($select)">
+                                    theme="bootstrap" on-select="ctrl.taxSelected($select)">
                                         <ui-select-match allow-clear placeholder="Select Tax...">
                                             {{$select.selected.name}} ({{$select.selected.percentage}}%)</ui-select-match>
                                         <ui-select-choices repeat="tax in ctrl.taxes track by $index">
@@ -158,24 +158,23 @@
                                     <div class="col-sm-10 col-sm-offset-1">
                                         <div ng-repeat="fraction in ctrl.product.fractions track by $index">
                                             <div class="row c-margin-bottom-sm">
-                                                <div class="col-sm-4" ng-class="{ 'has-error' : productForm['fractionName'+$index].$invalid && !productForm['fractionName'+$index].$pristine }">
+                                                <div class="col-sm-5" ng-class="{ 'has-error' : productForm['fractionName'+$index].$invalid && !productForm['fractionName'+$index].$pristine }">
                                                     <label ng-if="$index==0" class="control-label" for="fractionName" i18n="Name"></label>
                                                     <input type="text" class="form-control" name="fractionName{{$index}}" id="fractionName" i18n="i18n-placeholder" placeholder="Name" ng-model="fraction.name" required>
                                                 </div>
                                                 <div class="col-sm-2" ng-class="{ 'has-error' : productForm['fractionProportion'+$index].$invalid && !productForm['fractionProportion'+$index].$pristine }">
-                                                    <label ng-if="$index==0" class="control-label" for="fractionProportion" i18n="Qty."></label>
-                                                    <input id="fractionProportion" name="fractionProportion{{$index}}" class="form-control" type="text" money mgMaxlength="6" ng-model="fraction.qty" ng-change="ctrl.fractionProportionChanged($index)" ng-disabled="$index==0" interpret="true" i18n="i18n-placeholder" placeholder="Eg. 0.25" required>
+                                                    <label ng-if="$index==0" class="control-label" for="fractionProportion" i18n="Qty in Pack"></label>
+                                                    <input id="fractionProportion" name="fractionProportion{{$index}}" class="form-control"
+                                                            type="number" min="1" mgMaxlength="6" ng-model="fraction.qty"
+                                                            ng-change="ctrl.fractionProportionChanged($index)" ng-disabled="$index==0"
+                                                            i18n="i18n-placeholder" placeholder="Eg. 100" popover="How many of this fractions are contained in the main package?" popover-trigger="focus"
+                                                            required>
                                                 </div>
-                                                <div class="col-sm-3" ng-class="{ 'has-error' : productForm['fractionPrice'+$index].$invalid && !productForm['fractionPrice'+$index].$pristine }">
+                                                <div class="col-sm-4" ng-class="{ 'has-error' : productForm['fractionPrice'+$index].$invalid && !productForm['fractionPrice'+$index].$pristine }">
                                                     <label ng-if="$index==0" class="control-label" for="fractionPrice" i18n="Price"></label>
-                                                    <input id="fractionPrice" name="fractionPrice{{$index}}" class="form-control" type="text" money mgMaxlength="8" ng-model="fraction.price" ng-change="ctrl.fractionPriceChanged($index, productForm.fractionPrice{{$index}})" ng-disabled="$index==0" i18n="i18n-placeholder" placeholder="Retail price" required>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <label ng-if="$index==0" class="control-label" for="fractionSku" i18n="SKU"></label>
-
                                                     <div class="row">
                                                         <div class="col-xs-10">
-                                                            <input type="text" class="form-control" id="fractionSku" ng-model="fraction.sku" ng-disabled="$index==0" i18n="i18n-placeholder" placeholder="SKU">
+                                                            <input id="fractionPrice" name="fractionPrice{{$index}}" class="form-control" type="text" money mgMaxlength="8" ng-model="fraction.price" ng-change="ctrl.fractionPriceChanged($index, productForm.fractionPrice{{$index}})" ng-disabled="$index==0" i18n="i18n-placeholder" placeholder="Retail price" required>
                                                         </div>
                                                         <div class="col-xs-2 c-no-padding-left">
                                                             <a href="javascript:;" class="btn-icon btn-icon-round btn-icon-sm bg-danger" ng-show="$index>0" ng-click="ctrl.removeFraction($index)"><i class="fa fa-remove"></i></a>
@@ -242,17 +241,17 @@
 <div class="row">
 <div class="col-sm-5 col-sm-offset-1">
 <label class="control-label" for="newTax" i18n="Name"></label>
-<input id="newTax" class="form-control" type="text" ng-model="newTax.name" min="1" ng-change="inputChange()" focus-here>
+<input id="newTax" class="form-control" type="text" ng-model="modalCtrl.newTax.name" min="1" ng-change="modalCtrl.inputChange()" focus-here>
 </div>
 <div class="col-sm-3 col-sm-offset-1">
 <label class="control-label" for="newTaxPercentage" i18n="Percentage"></label>
-<input id="newTaxPercentage" class="form-control" type="text" ng-model="newTax.percentage" money mgMaxlength="8" precision="2">
+<input id="newTaxPercentage" class="form-control" type="text" ng-model="modalCtrl.newTax.percentage" money mgMaxlength="8" precision="2">
 </div>
 </div>
 </form>
 </div>
 <div class="modal-footer">
-<button class="btn btn-info" ng-click="ok()" i18n="Add" ng-disabled="disableSave" accesskey="A"></button>
-<button class="btn btn-warning" ng-click="cancel()" i18n="Cancel"></button>
+<button class="btn btn-info" ng-click="modalCtrl.ok()" i18n="Add" ng-disabled="modalCtrl.disableSave" accesskey="A"></button>
+<button class="btn btn-warning" ng-click="modalCtrl.cancel()" i18n="Cancel"></button>
 </div>
 </script>

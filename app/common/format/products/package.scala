@@ -42,19 +42,17 @@ package object products {
   implicit val fractionWrites: Writes[Fraction] = (
     (__ \ "id").write[Option[FractionId]] and
       (__ \ "item").write[Option[ItemId]] and
-      (__ \ "sku").write[String] and
       (__ \ "name").write[String] and
       (__ \ "price").write[Double] and
-      (__ \ "qty").write[Float]
+      (__ \ "qty").write[Int]
     )(unlift(Fraction.unapply))
 
   implicit val fractionReads: Reads[Fraction] = (
     (__ \ "id").read[Option[FractionId]] and
       (__ \ "item").read[Option[ItemId]] and
-      (__ \ "sku").read[String] and
       (__ \ "name").read[String] and
       (__ \ "price").read[Double] and
-      (__ \ "qty").read[Float]
+      (__ \ "qty").read[Int]
     )(Fraction.apply _)
 
   implicit val productReads: Reads[Product] = (

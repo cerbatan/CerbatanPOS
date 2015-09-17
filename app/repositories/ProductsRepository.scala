@@ -23,9 +23,9 @@ object ProductsRepository {
 
       val itemFractions = FractionsRepository.findByItemId(id)
 
-      return  Some(Product(item.id, item.sku, item.name, itemBrand, itemTags,
+      return Some(Product(item.id, item.sku, item.name, itemBrand, itemTags,
         stock.cost, stock.price, tax, stock.retailPrice, stock.trackStock, stock.stockCount, stock.alertLowStock, stock.alertStockLevel,
-      itemFractions))
+        itemFractions))
 
     }
 
@@ -33,24 +33,26 @@ object ProductsRepository {
   }
 
   def save(p: Product)(implicit session: Session): ItemId = {
-    val brandId = p.brand.fold[Option[BrandId]](None)(b => b.id)
-    val newItem: Item = Item(None, p.sku, p.name, brandId)
+    session.withTransaction {
+      val brandId = p.brand.fold[Option[BrandId]](None)(b => b.id)
+      val newItem: Item = Item(None, p.sku, p.name, brandId)
 
-    val itemId = ItemsRepository.save(newItem)
+      val itemId = ItemsRepository.save(newItem)
 
-    val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
-    val itemStock = ItemStock(None, itemId, p.cost, p.price, taxId, p.retailPrice, p.trackStock, p.stockCount, p.alertLowStock, p.alertStockLevel)
+      val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
+      val itemStock = ItemStock(None, itemId, p.cost, p.price, taxId, p.retailPrice, p.trackStock, p.stockCount, p.alertLowStock, p.alertStockLevel)
 
-    p.tags.foreach(t => {
-      tagsForItemQuery insert (t.id.get -> itemId)
-    })
+      p.tags.foreach(t => {
+        tagsForItemQuery insert (t.id.get -> itemId)
+      })
 
-    p.fractions.foreach(f => {
-      FractionsRepository.save(f.copy(item = Some(itemId)))
-    })
+      p.fractions.foreach(f => {
+        FractionsRepository.save(f.copy(item = Some(itemId)))
+      })
 
-    ItemsStockRepository.save(itemStock)
+      ItemsStockRepository.save(itemStock)
 
-    itemId
+      itemId
+    }
   }
 }

@@ -16,14 +16,14 @@ GET         /views/products              controllers.products.Products.products
 GET         /views/product/new           controllers.products.Products.newProduct
 GET         /views/product/detail        controllers.products.Products.productDetail
 
-PUT         /product/add                 controllers.products.Products.addProduct
+POST        /product                     controllers.products.Products.addProduct
 GET         /product/:id                 controllers.products.Products.getProduct(id: Long)
 GET         /products/brands             controllers.products.Products.brands(q: Option[String])
-PUT         /products/brands/new         controllers.products.Products.addBrand
+POST        /products/brand              controllers.products.Products.addBrand
 GET         /products/tags               controllers.products.Products.tags
-PUT         /products/tags/new           controllers.products.Products.addTag
+POST        /products/tag                controllers.products.Products.addTag
 GET         /products/taxes              controllers.products.Products.taxes
-PUT         /products/taxes/new          controllers.products.Products.addTax
+POST        /products/taxe               controllers.products.Products.addTax
 
 
 # Map static resources from the /public folder to the /assets URL path

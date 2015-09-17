@@ -22,7 +22,8 @@ libraryDependencies ++= Seq(
   "org.webjars" % "angular-ui-bootstrap" % "0.13.0",
   "org.webjars.bower" % "angular-scroll" % "0.7.1",
   "org.webjars" % "ng-tags-input" % "2.3.0",
-  "org.webjars" % "angular-ui-select" % "0.11.2"
+  "org.webjars" % "angular-ui-select" % "0.11.2",
+  "org.webjars" % "angular-toastr" % "1.5.0"
   // Add your own project dependencies in the form:
   // "group" % "artifact" % "version"
 )
@@ -32,6 +33,8 @@ resolvers ++= Seq(
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
+
+pipelineStages := Seq(rjs)
 
 // for minified *.min.css files
 LessKeys.compress := true

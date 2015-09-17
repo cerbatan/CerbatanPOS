@@ -5,6 +5,7 @@ import jp.t2v.lab.play2.auth.AuthElement
 import models.Product
 import models.Role.{Administrator, Seller}
 import models.db.{ItemId, Tax, Tag, Brand}
+import org.h2.jdbc.JdbcSQLException
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.libs.json._
@@ -40,8 +41,14 @@ object Products extends Controller with AuthElement with AuthConfiguration {
           BadRequest
         },
         product => {
-          val id = ProductsRepository.save(product)
-          Ok(Json.toJson(id))
+          try {
+            val id = ProductsRepository.save(product)
+            Ok(Json.toJson(id))
+          } catch {
+            case e: JdbcSQLException => Conflict
+            case e: Exception => InternalServerError
+          }
+
         }
       )
     }
