@@ -18,100 +18,33 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="table-responsive panel panel-default">
-                        <table class="table table-bordered cf c-table-products">
-                            <thead class="cf">
+                        <table class="table">
+                            <thead >
                                 <tr>
                                     <th>Product</th>
-                                    <th class="hidden-xs">Brand</th>
-                                    <th class="hidden-xs hidden-sm">Tags</th>
+                                    <th class="hidden-xs">Brand & Tags</th>
                                     <th class="numeric">Price</th>
                                     <th class="numeric">Count</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Dicloxacilina Tabletas x 100mg </td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
-                                </tr>
-                                <tr>
-                                    <td>Table cell</td>
-                                    <td class="hidden-xs">Table cell</td>
-                                    <td class="hidden-xs hidden-sm">Table cell</td>
-                                    <td class="numeric">$1.200,00</td>
-                                    <td class="numeric">2</td>
+                                <tr ng-repeat="product in ctrl.products track by product.id">
+                                    <td class="text-left">
+                                        <p class="c-margin-bottom-xxs">
+                                            <a href ng-click="ctrl.showProduct(product.id)">{{product.name}}</a>
+                                        </p>
+                                        <small>SKU: {{product.sku}}</small>
+                                    </td>
+                                    <td class="hidden-xs">
+                                        <p class="c-margin-bottom-xxs" ng-if="product.brand!=null">{{product.brand}}</p>
+                                        <p class="c-margin-bottom-xxs" ng-if="product.brand==null" i18n="No Brand"></p>
+                                        <span ng-repeat="tag in product.tags">
+                                            <span class="label label-success">{{tag}}</span>
+                                            <div class="small-space"></div>
+                                        </span>
+                                    </td>
+                                    <td class="numeric">{{product.retailPrice}}</td>
+                                    <td class="numeric">{{product.stockCount}}</td>
                                 </tr>
                             </tbody>
                         </table>

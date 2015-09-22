@@ -1,17 +1,5 @@
-require(['jquery', 'angular']
-  ($, angular) ->
-    config = (toastrConfig) ->
-      angular.extend toastrConfig,
-        closeButton: true
-        allowHtml: true
-        positionClass: "toast-bottom-left"
-        timeOut: "4000"
-        target: "div.main-container"
-
-    angular
-    .module('app.common', ['toastr'])
-    .config(config)
-
+define(['angular', './module']
+  (ng, app) ->
     (->
       'use strict'
       MoneyDirective = () ->
@@ -31,7 +19,7 @@ require(['jquery', 'angular']
             if ngModelCtrl.$isEmpty(value) then '' else '' + value
 
           ngModelCtrl.$parsers.push (value) ->
-            value = '' if angular.isUndefined(value)
+            value = '' if ng.isUndefined(value)
 
             if attrs.interpret and attrs.interpret == 'true'
               try
@@ -43,7 +31,7 @@ require(['jquery', 'angular']
               value
 
             else
-              # Handle leading decimal point, like ".5"
+# Handle leading decimal point, like ".5"
               value = '0' + value if value.indexOf('.') == 0
 
               # Allow "-" inputs only when min < 0
@@ -59,7 +47,7 @@ require(['jquery', 'angular']
               if empty or NUMBER_REGEXP.test(value)
                 lastValidValue = (if value == '' then null else if empty then value else parseFloat(value))
               else
-                # Render the last valid input in the field
+# Render the last valid input in the field
                 ngModelCtrl.$setViewValue formatViewValue(lastValidValue)
                 ngModelCtrl.$render()
 
@@ -116,9 +104,7 @@ require(['jquery', 'angular']
 
         return directive
 
-      angular
-      .module('app.common')
-      .directive('money', MoneyDirective)
+      app.directive('money', MoneyDirective)
 
       return
     )()
@@ -143,9 +129,7 @@ require(['jquery', 'angular']
 
         return directive
 
-      angular
-      .module('app.common')
-      .directive('focusHere', ['$timeout', '$parse',FocusHere])
+      app.directive('focusHere', ['$timeout', '$parse',FocusHere])
     )()
 
     (->
@@ -231,14 +215,12 @@ require(['jquery', 'angular']
           restrict: "E",
           replace: "true",
           template: "<button type=\"button\" ng-style=\"stylebtn\" class=\"btn btn-default\" ng-class=\"{'btn-xs': size==='default', 'btn-sm': size==='large', 'btn-lg': size==='largest', 'checked': checked===true}\">" +
-                    "<span ng-style=\"styleicon\" class=\"glyphicon\" ng-class=\"{'glyphicon-ok': checked===true}\"></span>" +
-                    "</button>"
+            "<span ng-style=\"styleicon\" class=\"glyphicon\" ng-class=\"{'glyphicon-ok': checked===true}\"></span>" +
+            "</button>"
 
         return directive
 
-      angular
-      .module('app.common')
-      .directive("checkbox", CheckBox)
+      app.directive("checkbox", CheckBox)
     )()
 
     (->
@@ -248,52 +230,57 @@ require(['jquery', 'angular']
             $window.history.back()
 
         GoBackController
-          .$inject = ['$scope', '$element', '$window']
+        .$inject = ['$scope', '$element', '$window']
 
         directive =
           restrict: "A",
           controller: GoBackController
 
-        return directive
+      app.directive("goBack", GoBackDirective)
+    )()
 
-      angular
-      .module('app.common')
-      .directive("goBack", GoBackDirective)
+
+    (->
+      ImgDirective  = ->
+        restrict: 'A'
+        link: (scope, ele, attrs) ->
+          Holder.run images: ele[0]
+
+      app.directive 'imgHolder', ImgDirective
+
     )()
 
     (->
-      Notifier = (toastr) ->
-        # toastr setting.
-        toastrOptions =
-          closeButton: true
-          positionClass: "toast-bottom-right"
-          timeOut: "3000"
+      CustomPageDirective  = ->
+        CustomPageController = ($scope, $element, $location) ->
+          path = ->
+            $location.path()
 
-        logIt = (message, type) ->
-          toastr[type](message)
-
-        return {
-          log: (message) ->
-            logIt(message, 'info')
+          addBg = (path) ->
+            $element.removeClass 'body-wide body-lock'
+            switch path
+              when '/404', '/pages/404', '/pages/500', '/pages/signin', '/pages/signup', '/pages/forgot-password'
+                return $element.addClass('body-wide')
+              when '/pages/lock-screen'
+                return $element.addClass('body-wide body-lock')
             return
 
-          logWarning: (message) ->
-            logIt(message, 'warning')
-            return
+          addBg $location.path()
+          $scope.$watch path, (newVal, oldVal) ->
+            if newVal == oldVal
+              return
+            addBg $location.path()
 
-          logSuccess: (message) ->
-            logIt(message, 'success')
-            return
+        CustomPageController.$inject = ['$scope', '$element', '$location']
 
-          logError: (message) ->
-            logIt(message, 'error')
-            return
-        }
+        directive =
+          restrict: "A",
+          controller: CustomPageController
 
-      angular
-      .module('app.common')
-      .factory('notifier', ['toastr', Notifier])
+      app.directive 'customPage', CustomPageDirective
     )()
+
+
 
     return
 )

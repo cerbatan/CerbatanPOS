@@ -16,11 +16,12 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % "0.3m",
   ws,
   "org.webjars" %% "webjars-play" % "2.3.0-3",
+  "org.webjars" % "requirejs-domready" % "2.0.1-2",
   "org.webjars" % "bootstrap" % "3.3.4",
   "org.webjars" % "font-awesome" % "4.3.0-2",
   "org.webjars" % "angularjs" % "1.3.16",
   "org.webjars" % "angular-ui-bootstrap" % "0.13.0",
-  "org.webjars.bower" % "angular-scroll" % "0.7.1",
+  "org.webjars.bower" % "angular-scroll" % "0.7.1" exclude("org.webjars.bower", "angular"),
   "org.webjars" % "ng-tags-input" % "2.3.0",
   "org.webjars" % "angular-ui-select" % "0.11.2",
   "org.webjars" % "angular-toastr" % "1.5.0"
@@ -34,7 +35,7 @@ resolvers ++= Seq(
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
 
-pipelineStages := Seq(rjs)
+//pipelineStages := Seq(rjs)
 
 // for minified *.min.css files
 LessKeys.compress := true

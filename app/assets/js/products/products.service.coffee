@@ -1,8 +1,6 @@
-'use strict'
-
-require(['jquery', 'angular']
-  ($, angular) ->
-
+define(['./module']
+  (module) ->
+    'use strict'
     (->
       ProductsService = (playRoutes, $cacheFactory) ->
         return {
@@ -32,11 +30,12 @@ require(['jquery', 'angular']
 
           getProduct: (productId) ->
             playRoutes.controllers.products.Products.getProduct(productId).get()
+
+          getProductsBrief: (filter) ->
+            playRoutes.controllers.products.Products.getProductsBrief(filter).get()
         }
 
-      angular
-      .module('app.common')
-      .factory('productsService', ['playRoutes', '$cacheFactory', ProductsService])
+      module.factory('productsService', ['playRoutes', '$cacheFactory', ProductsService])
     )()
 
     return

@@ -63,6 +63,13 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     }
   }
 
+  def getProductsBrief(filter: Option[String]) = StackAction(AuthorityKey -> Seller) { implicit request =>
+    DB.withSession { implicit session: Session =>
+      val briefs = ProductsRepository.getBriefs(filter, 1, 15)
+      Ok(Json.toJson(briefs))
+    }
+  }
+
   def brands(query: Option[String]) = StackAction(AuthorityKey -> Seller) { implicit request =>
     DB.withSession { implicit session: Session =>
       val brands = query match {

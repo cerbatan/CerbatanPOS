@@ -1,6 +1,6 @@
 package common.format
 
-import models.Product
+import models.{ProductBrief, Product}
 import models.db._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -63,7 +63,7 @@ package object products {
       (__ \ "tags").read[List[Tag]] and
       (__ \ "cost").read[Double] and
       (__ \ "price").read[Double] and
-      (__ \ "tax").read[Option[Tax]] and
+      (__ \ "tax").readNullable[Tax] and
       (__ \ "retailPrice").read[Double] and
       (__ \ "trackStock").read[Boolean] and
       (__ \ "stockCount").read[Float] and
@@ -88,4 +88,24 @@ package object products {
       (__ \ "stockAlertLevel").write[Float] and
       (__ \ "fractions").write[List[Fraction]]
     )(unlift(Product.unapply))
+
+  implicit val productBriefReads: Reads[ProductBrief] = (
+    (__ \ "id").read[ItemId] and
+      (__ \ "name").read[String] and
+      (__ \ "sku").read[String] and
+      (__ \ "brand").read[Option[String]] and
+      (__ \ "tags").read[List[String]] and
+      (__ \ "retailPrice").read[Double] and
+      (__ \ "stockCount").read[Float]
+    )(ProductBrief.apply _ )
+
+  implicit val productBriefWrites: Writes[ProductBrief] = (
+    (__ \ "id").write[ItemId] and
+      (__ \ "name").write[String] and
+      (__ \ "sku").write[String] and
+      (__ \ "brand").write[Option[String]] and
+      (__ \ "tags").write[List[String]] and
+      (__ \ "retailPrice").write[Double] and
+      (__ \ "stockCount").write[Float]
+    )(unlift(ProductBrief.unapply))
 }

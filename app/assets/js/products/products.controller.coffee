@@ -1,7 +1,6 @@
-'use strict'
-
-require(['jquery', 'angular', 'products/products.module']
-  ($, angular) ->
+define(['./module']
+  (module) ->
+    'use strict'
     class Brand
       constructor: (@name) ->
         @id = null
@@ -53,18 +52,29 @@ require(['jquery', 'angular', 'products/products.module']
         ###
         @fractions = []
 
-    ProductsController = ($location) ->
+    ProductsController = ($location, productsService) ->
       init = () =>
         @goToAddProduct = goToAddProduct
+        @showProduct = showProduct
+        activate()
 
       goToAddProduct = () ->
         $location.path '/product/new'
+
+      activate = =>
+        productsService.getProductsBrief().then(
+          (response) =>
+            @products = response.data
+        )
+
+      showProduct = (productId) ->
+        $location.path('/product/' + productId)
 
       init()
       return
 
     ProductsController
-      .$inject = ['$location']
+      .$inject = ['$location', 'productsService']
 
 
     NewProductController = ($filter, $log, $modal, productsService, $location, localize, notifier, preparedTaxes) ->
@@ -345,16 +355,13 @@ require(['jquery', 'angular', 'products/products.module']
       .$inject = ['$modalInstance']
 
 
-    DetailProductCtrl = ($log, productsService, $routeParams, localize) ->
+    DetailProductCtrl = ($log, productsService, $routeParams, preparedProduct) ->
       init = () =>
         @tagsList = tagsList
         activate()
 
       activate = () =>
-        productsService.getProduct($routeParams.id).then(
-          (response) =>
-            @product = response.data
-        )
+        @product = preparedProduct.data
 
       tagsList = () =>
         if @product? then (tag.name for tag in @product.tags).join ', ' else null
@@ -363,27 +370,17 @@ require(['jquery', 'angular', 'products/products.module']
       return
 
     DetailProductCtrl
-      .$inject = ['$log', 'productsService', '$routeParams', 'localize']
+      .$inject = ['$log', 'productsService', '$routeParams', 'preparedProduct']
 
-    angular
-    .module('app.products')
-    .controller('ProductsCtrl', ProductsController)
+    module.controller('ProductsCtrl', ProductsController)
 
-    angular
-    .module('app.products')
-    .controller('NewProductCtrl', NewProductController)
+    module.controller('NewProductCtrl', NewProductController)
 
-    angular
-    .module('app.products')
-    .controller('NewBrandModalCtrl', NewBrandModalCtrl)
+    module.controller('NewBrandModalCtrl', NewBrandModalCtrl)
 
-    angular
-    .module('app.products')
-    .controller('AddTaxModalCtrl', AddTaxModalCtrl)
+    module.controller('AddTaxModalCtrl', AddTaxModalCtrl)
 
-    angular
-    .module('app.products')
-    .controller('DetailProductCtrl', DetailProductCtrl)
+    module.controller('DetailProductCtrl', DetailProductCtrl)
 
     return
 )
