@@ -52,33 +52,48 @@ define(['./module']
         ###
         @fractions = []
 
-    ProductsController = ($location, productsService) ->
+    ProductsController = (productsRoutes, productsBackend, $route) ->
+
       init = () =>
+        @totalProducts = 0
+        @products = []
         @goToAddProduct = goToAddProduct
         @showProduct = showProduct
+        @pageChange = pageChange
         activate()
 
       goToAddProduct = () ->
-        $location.path '/product/new'
+        productsRoutes.addProduct()
 
       activate = =>
-        productsService.getProductsBrief().then(
+        @queryFilter = $route.current.params.q
+        page = $route.current.params.p
+
+        productsBackend.getProductsBrief(@queryFilter, page).then(
           (response) =>
-            @products = response.data
+            @totalProducts = response.data.total
+            @products = response.data.briefs
         )
+        @currentPage = if page? then page else 1
 
       showProduct = (productId) ->
-        $location.path('/product/' + productId)
+        productsRoutes.showProduct(productId)
+
+      pageChange = () =>
+        productsRoutes.showBriefs(@queryFilter, @currentPage)
 
       init()
       return
 
     ProductsController
-      .$inject = ['$location', 'productsService']
+      .$inject = ['productsRoutes', 'productsBackend', '$route']
 
 
-    NewProductController = ($filter, $log, $modal, productsService, $location, localize, notifier, preparedTaxes) ->
+    EditProductController = ($filter, $log, $modal, productsBackend, productsRoutes, localize, notifier, preparedTaxes, preparedProduct) ->
       lastSearch = " "
+      submitOperation = null
+      successMsg = "success"
+      errorMsg = "error"
 
       init = () =>
         @product = new Product()
@@ -99,7 +114,7 @@ define(['./module']
         @taxChanged = taxChanged
         @addFraction = addFraction
         @removeFraction = removeFraction
-        @submitProduct = submitProduct
+        @saveProduct = saveProduct
         @fractionProportionChanged = fractionProportionChanged
         @fractionPriceChanged = fractionPriceChanged
 
@@ -107,6 +122,19 @@ define(['./module']
 
       activate = =>
         populateTaxes(preparedTaxes.data)
+        if preparedProduct?
+          @product = preparedProduct.data
+          submitOperation = productsBackend.updateProduct
+          successMsg = "Product Updated"
+          errorMsg = "Failed to update product"
+
+        else
+          @product = new Product()
+          submitOperation = productsBackend.addProduct
+          successMsg = "Product Added"
+          errorMsg = "Failed to create product.<br/>This SKU may already exist."
+
+        updateProductMarkup()
 
       showAddBrandDialog = (brandName, showInput) ->
         $modal.open
@@ -127,7 +155,7 @@ define(['./module']
         filter = $select.search
         if (lastSearch.length == 0 and filter.length > 0) or filter.toLowerCase().indexOf(lastSearch.toLocaleLowerCase()) != 0
           lastSearch = filter
-          productsService.getBrands(filter).then(
+          productsBackend.getBrands(filter).then(
             (response) =>
               brands = response.data
               if brands.length == 0
@@ -150,7 +178,7 @@ define(['./module']
             showAddBrandDialog(newBrandName).result.then(
               =>
                 $log.info 'Adding Brand'
-                productsService.addBrand(newBrandName).then(
+                productsBackend.addBrand(newBrandName).then(
                   (response) =>
                     @product.brand = response.data
                   () ->
@@ -165,7 +193,7 @@ define(['./module']
         showAddBrandDialog('', true).result.then(
           (newBrandName) =>
             $log.info 'Adding Brand'
-            productsService.addBrand(newBrandName).then(
+            productsBackend.addBrand(newBrandName).then(
               (response) =>
                 @product.brand = response.data
               ->
@@ -175,18 +203,18 @@ define(['./module']
         )
 
       loadTags = ($query) ->
-        productsService.getTags(true).then (response) ->
+        productsBackend.getTags(true).then (response) ->
           $filter('filter') response.data, $query
 
       handleAddingTag = ($tag) =>
         if $tag.id == undefined or $tag.id == null
           $log.info 'Adding Tag'
-          productsService.addTag($tag.name).then(
+          productsBackend.addTag($tag.name).then(
             (response) =>
               tag = response.data
               @product.tags.pop()
               @product.tags.push tag
-              productsService.flushTagsCache()
+              productsBackend.flushTagsCache()
             =>
               @product.tags.pop()
               $log.warning 'Failed tag creation'
@@ -194,7 +222,7 @@ define(['./module']
 
 
       getTaxes = () =>
-        productsService.getTaxes().then(
+        productsBackend.getTaxes().then(
           (response) ->
             populateTaxes(response.data)
         )
@@ -224,15 +252,18 @@ define(['./module']
         updateRetailPrice()
 
       productPriceUpdated = =>
-        @product.markup = (@product.price / @product.cost - 1.0) * 100.0
+        updateProductMarkup()
         updateRetailPrice()
+
+      updateProductMarkup = =>
+        @product.markup = if @product.cost > 0 then (@product.price / @product.cost - 1.0) * 100.0 else 0.0
 
       taxSelected = (select) =>
         if select.selected.id == null
           showAddTaxDialog().result.then(
             (newTax) =>
               $log.info 'Adding Tax'
-              productsService.addTax(newTax).then(
+              productsBackend.addTax(newTax).then(
                 (response) =>
                   @product.tax = response.data
                   taxChanged()
@@ -253,7 +284,7 @@ define(['./module']
         else
           @product.price = @product.retailPrice
 
-        @product.markup = (@product.price / @product.cost - 1.0) * 100.0
+        updateProductMarkup()
         refreshFractions()
 
       refreshFractions = =>
@@ -276,20 +307,19 @@ define(['./module']
         else
           @product.fractions.splice(index, 1)
 
-      submitProduct = (isValid) =>
+      saveProduct = (isValid) =>
         if isValid
           @saving = true
-          productsService.addProduct(@product).then(
+          submitOperation(@product).then(
             (response) =>
               productId = response.data
-              $log.info("Product added " + productId)
-              notifier.logSuccess localize.getLocalizedString("Product Added")
-              $location.path('/product/' + productId)
+              notifier.logSuccess localize.getLocalizedString(successMsg)
+              productsRoutes.showProduct(productId)
               @saving = false
             (errorResponse) =>
               $log.warn("Failed product creation")
               @saving = false
-              notifier.logError localize.getLocalizedString("Failed to create product.<br/>This SKU may already exist.")
+              notifier.logError localize.getLocalizedString(errorMsg)
           )
 
       fractionProportionChanged = (index) =>
@@ -303,8 +333,8 @@ define(['./module']
       init()
       return
 
-    NewProductController
-      .$inject = ['$filter','$log', '$modal', 'productsService', '$location', 'localize', 'notifier', 'preparedTaxes' ]
+    EditProductController
+      .$inject = ['$filter','$log', '$modal', 'productsBackend', 'productsRoutes', 'localize', 'notifier', 'preparedTaxes', 'preparedProduct' ]
 
 
     NewBrandModalCtrl = ($modalInstance, newBrandName, showInput) ->
@@ -355,9 +385,10 @@ define(['./module']
       .$inject = ['$modalInstance']
 
 
-    DetailProductCtrl = ($log, productsService, $routeParams, preparedProduct) ->
+    DetailProductCtrl = ($log, productsRoutes, preparedProduct) ->
       init = () =>
         @tagsList = tagsList
+        @edit = edit
         activate()
 
       activate = () =>
@@ -366,15 +397,18 @@ define(['./module']
       tagsList = () =>
         if @product? then (tag.name for tag in @product.tags).join ', ' else null
 
+      edit = () =>
+        productsRoutes.editProduct(@product.id)
+
       init()
       return
 
     DetailProductCtrl
-      .$inject = ['$log', 'productsService', '$routeParams', 'preparedProduct']
+      .$inject = ['$log', 'productsRoutes', 'preparedProduct']
 
     module.controller('ProductsCtrl', ProductsController)
 
-    module.controller('NewProductCtrl', NewProductController)
+    module.controller('EditProductCtrl', EditProductController)
 
     module.controller('NewBrandModalCtrl', NewBrandModalCtrl)
 

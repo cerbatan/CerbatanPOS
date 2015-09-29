@@ -1,17 +1,17 @@
 <section class="page">
     <div class="panel panel-default c-panel-products">
-        <div class="panel-heading">
-            <button class="btn btn-w-sm btn-gap-v btn-round btn-info" ng-click="ctrl.goToAddProduct()"><span class="glyphicon glyphicon-plus"></span> <span data-i18n="Add Product"></span></button>
-        </div>
         <div class="panel-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-sm-6 col-xs-8">
                     <div class="input-group">
                         <input type="text" class="form-control" i18n="i18n-placeholder" placeholder="Search for product...">
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
                     </div>
+                </div>
+                <div class="col-sm-5 col-md-offset-1 col-xs-4">
+                    <button class="btn btn-w-sm btn-sm btn-gap-v btn-round btn-info pull-right" ng-click="ctrl.goToAddProduct()"><span class="glyphicon glyphicon-plus"></span> <span data-i18n="Add"></span></button>
                 </div>
             </div>
             <div class="divider"></div>
@@ -28,14 +28,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="product in ctrl.products track by product.id">
-                                    <td class="text-left">
+                                <tr ng-repeat="product in ctrl.products track by product.id" class="c-row-no-padding">
+                                    <td class="text-left c-half-cell-vertical-padding">
                                         <p class="c-margin-bottom-xxs">
                                             <a href ng-click="ctrl.showProduct(product.id)">{{product.name}}</a>
                                         </p>
                                         <small>SKU: {{product.sku}}</small>
                                     </td>
-                                    <td class="hidden-xs">
+                                    <td class="hidden-xs c-half-cell-vertical-padding">
                                         <p class="c-margin-bottom-xxs" ng-if="product.brand!=null">{{product.brand}}</p>
                                         <p class="c-margin-bottom-xxs" ng-if="product.brand==null" i18n="No Brand"></p>
                                         <span ng-repeat="tag in product.tags">
@@ -43,11 +43,23 @@
                                             <div class="small-space"></div>
                                         </span>
                                     </td>
-                                    <td class="numeric">{{product.retailPrice}}</td>
-                                    <td class="numeric">{{product.stockCount}}</td>
+                                    <td class="numeric c-half-cell-vertical-padding">{{product.retailPrice}}</td>
+                                    <td class="numeric c-half-cell-vertical-padding">{{product.stockCount}}</td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div ng-if="ctrl.totalProducts">
+                        <pagination total-items="ctrl.totalProducts"
+                        ng-model="ctrl.currentPage"
+                        items-per-page="8"
+                        max-size="5"
+                        class="pagination-sm pull-right no-margin"
+                        boundary-links="true"
+                        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                        num-pages="numPages" ng-hide="numPages<=1"
+                        ng-change="ctrl.pageChange()"
+                        ></pagination>
                     </div>
                 </div>
             </div>

@@ -16,14 +16,15 @@ define(['./module', 'angular']
 
         .when '/product/new',
           templateUrl: 'views/product/new'
-          controller: 'NewProductCtrl'
+          controller: 'EditProductCtrl'
           controllerAs: 'ctrl'
           resolve:
             preparedTaxes: [
-              'productsService'
+              'productsBackend'
               (productsService) ->
                 productsService.getTaxes()
             ]
+            preparedProduct: -> null
 
         .when '/product/:id',
           templateUrl: 'views/product/detail'
@@ -32,13 +33,30 @@ define(['./module', 'angular']
           resolve:
             preparedProduct: [
               '$route'
-              'productsService'
+              'productsBackend'
+              ($route, productsService) ->
+                productsService.getProduct($route.current.params.id)
+            ]
+
+        .when '/product/edit/:id',
+          templateUrl: 'views/product/edit'
+          controller: 'EditProductCtrl'
+          controllerAs: 'ctrl'
+          resolve:
+            preparedTaxes: [
+              'productsBackend'
+              (productsService) ->
+                productsService.getTaxes()
+            ]
+            preparedProduct: [
+              '$route'
+              'productsBackend'
               ($route, productsService) ->
                 productsService.getProduct($route.current.params.id)
             ]
 
         .when '/404',
-          templateUrl: 'views/pages/404.html'
+            templateUrl: 'views/pages/404.html'
 
       ng.extend toastrConfig,
         closeButton: true

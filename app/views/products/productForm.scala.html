@@ -2,7 +2,7 @@
 
 <section class="page">
     <p class="size-h3" i18n="@title"></p>
-    <form class="form-horizontal" name="productForm" novalidate ng-submit="submitProduct(!productForm.$invalid)">
+    <form class="form-horizontal" name="productForm" novalidate ng-submit="saveProduct(!productForm.$invalid)">
 
         <div class="panel panel-default">
             <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> <span data-i18n="Details"></span></strong></div>
@@ -198,7 +198,7 @@
                 <hr class="spacer-10"/>
                 <div class="row pull-right">
                     <div class="col-xs-12">
-                        <button type="button" class="btn btn-info btn-w-lg btn-gap-v btn-round" ng-disabled="productForm.$invalid || saving" ng-click="ctrl.submitProduct(!productForm.$invalid)" i18n="Save"></button>
+                        <button type="button" class="btn btn-info btn-w-lg btn-gap-v btn-round" ng-disabled="productForm.$invalid || saving" ng-click="ctrl.saveProduct(!productForm.$invalid)" i18n="Save"></button>
                         <button type="button" class="btn btn-default btn-w-lg btn-gap-v btn-round" i18n="Cancel" go-back></button>
                     </div>
                 </div>

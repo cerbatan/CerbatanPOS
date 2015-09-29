@@ -1,5 +1,6 @@
 define [
     './products.controller'
-    './products.service'
+    './productsBackend.service'
+    './productsRoutes.service'
   ]
   , ->

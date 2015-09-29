@@ -108,4 +108,9 @@ package object products {
       (__ \ "retailPrice").write[Double] and
       (__ \ "stockCount").write[Float]
     )(unlift(ProductBrief.unapply))
+
+  implicit val productBriefsResponse: Writes[Tuple2[Int, Seq[ProductBrief]]] = (
+    (__ \ "total").write[Int] and
+      (__ \ "briefs").write[Seq[ProductBrief]]
+    )(unlift(Tuple2.unapply[Int, Seq[ProductBrief]]))
 }

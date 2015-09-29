@@ -25,33 +25,48 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     Ok(views.html.products.productForm("Add Product"))
   }
 
+  def editProduct = StackAction(AuthorityKey -> Administrator) { implicit request =>
+    val user = loggedIn
+
+    Ok(views.html.products.productForm("Edit Product"))
+  }
+
   def productDetail = StackAction(AuthorityKey -> Seller) { implicit request =>
     val user = loggedIn
     Ok(views.html.products.productDetails())
   }
 
-  def addProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+  def saveProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
     DB.withSession { implicit session: Session =>
       val user = loggedIn
-
-      val newProduct = request.body.validate[Product]
-
-      newProduct.fold(
-        error => {
-          BadRequest
-        },
-        product => {
-          try {
-            val id = ProductsRepository.save(product)
-            Ok(Json.toJson(id))
-          } catch {
-            case e: JdbcSQLException => Conflict
-            case e: Exception => InternalServerError
-          }
-
-        }
-      )
+      operateProduct(request.body, ProductsRepository.save)
     }
+  }
+
+  def updateProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    DB.withSession { implicit session: Session =>
+      val user = loggedIn
+      operateProduct(request.body, ProductsRepository.update)
+    }
+  }
+
+  private def operateProduct(body: JsValue, op: (Product) => ItemId) = {
+    val product = body.validate[Product]
+    product.fold(
+      error => {
+        BadRequest
+      },
+      product => {
+        try {
+          val id = op(product)
+          Ok(Json.toJson(id))
+        } catch {
+          case e: JdbcSQLException => Conflict
+          case e: Exception => InternalServerError
+        }
+
+      }
+    )
   }
 
   def getProduct(id: Long) = StackAction(AuthorityKey -> Seller) { implicit request =>
@@ -63,9 +78,9 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     }
   }
 
-  def getProductsBrief(filter: Option[String]) = StackAction(AuthorityKey -> Seller) { implicit request =>
+  def getProductsBrief(filter: Option[String], page: Option[Int]) = StackAction(AuthorityKey -> Seller) { implicit request =>
     DB.withSession { implicit session: Session =>
-      val briefs = ProductsRepository.getBriefs(filter, 1, 15)
+      val briefs = ProductsRepository.getBriefs(filter, page.getOrElse(1), 8)
       Ok(Json.toJson(briefs))
     }
   }

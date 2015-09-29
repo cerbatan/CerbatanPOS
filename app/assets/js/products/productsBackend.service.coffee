@@ -2,7 +2,7 @@ define(['./module']
   (module) ->
     'use strict'
     (->
-      ProductsService = (playRoutes, $cacheFactory) ->
+      ProductsBackend = (playRoutes, $cacheFactory) ->
         return {
           getBrands: (filter) ->
             playRoutes.controllers.products.Products.brands(filter).get()
@@ -26,16 +26,19 @@ define(['./module']
             playRoutes.controllers.products.Products.addTax().post(taxName)
 
           addProduct: (product) ->
-            playRoutes.controllers.products.Products.addProduct().post(product)
+            playRoutes.controllers.products.Products.saveProduct().post(product)
+
+          updateProduct: (product) ->
+            playRoutes.controllers.products.Products.updateProduct().put(product)
 
           getProduct: (productId) ->
             playRoutes.controllers.products.Products.getProduct(productId).get()
 
-          getProductsBrief: (filter) ->
-            playRoutes.controllers.products.Products.getProductsBrief(filter).get()
+          getProductsBrief: (filter, page) ->
+            playRoutes.controllers.products.Products.getProductsBrief(filter, page).get()
         }
 
-      module.factory('productsService', ['playRoutes', '$cacheFactory', ProductsService])
+      module.factory('productsBackend', ['playRoutes', '$cacheFactory', ProductsBackend])
     )()
 
     return
