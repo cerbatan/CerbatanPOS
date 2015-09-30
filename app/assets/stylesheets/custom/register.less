@@ -33,11 +33,11 @@
   -webkit-box-shadow: 0 8px 6px -6px  #999;
   -moz-box-shadow: 0 8px 6px -6px  #999;
   box-shadow: 0 8px 6px -6px #999;
-  border: 1px solid rgba(148, 183, 88, 0.45);
+  border: 1px solid rgba(148, 183, 88, 0.3);
   cursor: pointer; cursor: hand;
   &:hover{
-    background-color: @state-default-bg;
-    border: @reverse;
+    background-color: @bright;
+    border: @state-default-border-light;
   }
 }
 .products-panel {
@@ -74,4 +74,8 @@
   font-weight:bold;
   font-style: italic;
   font-size:1em;
+}
+
+.borderless tbody tr td, .borderless tbody tr th, .borderless thead tr th {
+  border: none;
 }
