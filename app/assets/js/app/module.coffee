@@ -9,6 +9,7 @@ define(['angular']
         'toastr'
         'app.localization'
         'app.task'
+        'app.sell'
         'app.products'
       ]
 )

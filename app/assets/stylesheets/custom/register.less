@@ -1,3 +1,6 @@
+@product-box-height:          90px;
+@product-box-width:          135px;
+
 #register {
   height: 100%;
   display: flex;
@@ -9,8 +12,8 @@
 }
 
 
-.product-container {
-  padding: 10px;
+.products-container {
+  padding: 10px 12px 10px 12px;
   margin: 0;
   list-style: none;
 
@@ -26,9 +29,9 @@
 }
 
 .product-box {
-  height: 80px;
-  width: 130px;
-  padding: 10px;
+  height: @product-box-height;
+  width: @product-box-width;
+  padding: 8px;
   margin-bottom: 10px;
   -webkit-box-shadow: 0 8px 6px -6px  #999;
   -moz-box-shadow: 0 8px 6px -6px  #999;
@@ -49,7 +52,7 @@
 }
 
 .product-filler {
-  width: 130px;
+  width: @product-box-width;
   border-color: transparent;
   min-height: 0;
   height: 0;
@@ -57,20 +60,31 @@
   padding-bottom: 0;
   margin-bottom: 0;
 }
-.producttitle {
+
+.product-title {
   font-weight:bold;
-  padding:5px 0 5px 0;
+  padding:5px 0 0 0;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
-.productprice {
+.product-subtitle {
+  font-size: @font-size-small;
+  padding:2px 0 5px 0;
+  min-height: @font-size-small + 7px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.product-price {
   border-top:1px solid #cecece;
   padding-top:5px;
 }
 
-.pricetext {
+.price-text {
   font-weight:bold;
   font-style: italic;
   font-size:1em;
@@ -78,4 +92,35 @@
 
 .borderless tbody tr td, .borderless tbody tr th, .borderless thead tr th {
   border: none;
+}
+
+.btn-icon-xs {
+  .button-icon-variant(25px);
+}
+
+.btn-item-count {
+  background-color: @btn-default-bg;
+  border: @btn-default-border;
+}
+
+.price-badge {
+  font-size: @font-size-base;
+  margin-top: 3px;
+  cursor: pointer; cursor: hand;
+}
+
+.table-hover {
+  > tbody > tr:hover .ui-rating {
+    display: inline-block;
+  }
+}
+
+.table-hover {
+  > tbody > tr .ui-rating {
+    display: none;
+  }
+}
+
+.parent:hover .child, .parent.hover .child {
+  display: block;
 }

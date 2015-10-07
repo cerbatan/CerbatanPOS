@@ -10,31 +10,66 @@
                             <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
                     </div>
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr ng-repeat="p in ctrl.cart">
+                                <td class="col-xs-1">
+                                    <span class="col-xs-10 col-xs-offset-2">
+                                        <a href class="btn-icon btn-icon-round btn-icon-xs bg-warning" ng-click="ctrl.removeFraction($index)" popover-template="'changeCountTemplate.html'" popover-placement="right"><strong>{{p.count}}</strong></a>
+                                    </span>
+                                </td>
+                                <td class="col-xs-8">
+                                    <a href ng-click="ctrl.showProduct(product.id)"><strong>{{p.name}}</strong></a>
+                                    <span class="ui-rating ui-rating-warning">
+                                        <i ng-click="product.starred=!product.starred" class="fa" ng-class="p.bookmarked || hovered? 'fa-star':'fa-star-o'" ng-mouseenter="hovered=true" ng-mouseleave="hovered=false">
+                                        </i>
+                                    </span>
+                                </td>
+                                <td class="col-xs-3 text-right">
+                                    <span class="col-xs-10">
+                                        <span class="badge badge-default price-badge" popover-template="'changePriceTemplate.html'" popover-placement="left">{{p.retailPrice*p.count}}</span>
+                                    </span>
+                                    <span class="col-xs-2 text-center">
+                                        <a href class="btn-icon btn-icon-round btn-icon-xs text-danger"><i class="fa fa-remove"></i></a>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <script type="text/ng-template" id="changeCountTemplate.html">
+                        <div class="form-group">
+                            <label i18n="Quantity"></label>
+                            <spinner-input model="p.count" initval="{{p.count}}" min="1" max="10000"></spinner-input>
+                        </div>
+                    </script>
+                    <script type="text/ng-template" id="changePriceTemplate.html">
+                        <div class="form-group">
+                            <label class="control-label" for="retailPrice"><span i18n="Unit Price"></span>&nbsp;&nbsp;<small i18n="(After Taxes)" class="c-label-subscript"></small></label>
+                            <div class="input-group">
+                                <span class="input-group-addon">$</span>
+                                <input id="retailPrice" class="form-control" type="text" ng-model="p.retailPrice" ng-change="ctrl.retailPriceUpdated()" money mgMaxlength="8" focus-here>
+                            </div>
+                        </div>
+                    </script>
                 </div>
-                    <div class="col-xs-offset-7 col-xs-5">
-                        <table id="table-sale-totals" class="table table-condensed borderless">
-                            <tbody>
-                                <tr>
-                                    <td class="total-item">
-                                        Subtotal
-                                    </td>
-                                    <td class="text-right">$0.00</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Tax</td>
-                                    <td class="text-right">$0.00</td>
-                                </tr>
-
-                                <tr>
-                                    <td class="total-item">
-                                        <strong>TOTAL</strong>
-                                    </td>
-                                    <td class="text-right"><strong>$0.00</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="col-xs-offset-7 col-xs-5">
+                    <table class="table table-condensed borderless">
+                        <tbody>
+                            <tr>
+                                <td i18n="Subtotal"></td>
+                                <td class="text-right">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td i18n="Tax"></td>
+                                <td class="text-right">$0.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong i18n="TOTAL"></strong></td>
+                                <td class="text-right"><strong>$0.00</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div id="register-actions">
                     <div class="pull-right">
                         <button type="button" class="btn btn-w-sm btn-gap-v btn-round btn-default">
@@ -56,65 +91,9 @@
         <div class="col-md-6 hidden-sm fill-height">
             <div class="panel panel-default products-panel" id="register">
                 <div class="panel-heading">
-                    <strong i18n="Favorites"></strong>
+                    <strong i18n="Bookmarks"></strong>
                 </div>
-                <div class="product-container">
-
-                    <div class="panel product-box button">
-                        <div class="producttitle">Dicloxacilina 100mg</div>
-                        <div class="productprice">
-                            <div class="pull-right">
-                                <a href="javascript:;" class="btn-icon btn-icon-xs"><i class="fa fa-trash"></i></a>
-                            </div>
-                            <div class="pricetext">$18,000</div></div>
-                    </div>
-
-                    <div class="panel product-box">
-                        <div class="producttitle">Product 3</div>
-                        <div class="productprice">
-                            <div class="pull-right">
-                                <a href="javascript:;" class="btn-icon btn-icon-xs"><i class="fa fa-trash"></i></a>
-                            </div>
-                            <div class="pricetext">£8.95</div></div>
-                    </div>
-
-
-
-                    <div class="panel product-box">
-                        <div class="producttitle">My third nice Product </div>
-                        <div class="productprice">
-                            <div class="pull-right">
-                                <a href="javascript:;" class="btn-icon btn-icon-xs"><i class="fa fa-trash"></i></a>
-                            </div>
-                            <div class="pricetext">£8.95</div></div>
-                    </div>
-
-
-                    <div class="panel product-box">
-                        <div class="producttitle">Product 3</div>
-                        <div class="productprice">
-                            <div class="pull-right">
-                                <a href="javascript:;" class="btn-icon btn-icon-xs"><i class="fa fa-trash"></i></a>
-                            </div>
-                            <div class="pricetext">£8.95</div></div>
-                    </div>
-
-
-                    <div class="panel product-box">
-                        <div class="producttitle">Another Nice product put here</div>
-                        <div class="productprice">
-                            <div class="pull-right">
-                                <a href="javascript:;" class="btn-icon btn-icon-xs"><i class="fa fa-trash"></i></a>
-                            </div>
-                            <div class="pricetext">£8.95</div></div>
-                    </div>
-                    <div class="product-filler"></div>
-                    <div class="product-filler"></div>
-                    <div class="product-filler"></div>
-                    <div class="product-filler"></div>
-                    <div class="product-filler"></div>
-                </div>
-
+                <div class="products-container" products="ctrl.bookmarks"></div>
             </div>
         </div>
     </div>

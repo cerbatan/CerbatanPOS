@@ -7,7 +7,9 @@ define(['./module', 'angular']
           redirectTo: '/sell'
 
         .when '/sell',
-          templateUrl: 'sell'
+          templateUrl: 'views/sell'
+          controller: "SellCtrl"
+          controllerAs: "ctrl"
 
         .when '/products',
           templateUrl: 'views/products'

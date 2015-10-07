@@ -130,5 +130,19 @@ hr.spacer-10 {
   border-radius: @border-radius-large;
 }
 
+input.spinner{
+  min-width: 4em;
+  text-align: center;
+}
+
+input.spinner[type=number]::-webkit-outer-spin-button,
+input.spinner[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.spinner[type=number] {
+  -moz-appearance:textfield;
+}
 
 @import "./register.less";

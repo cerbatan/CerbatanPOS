@@ -4,6 +4,7 @@ define [
     './nav.directives'
     './dashboard.directive'
     './services'
+    './spinner.directive'
     './config'
   ]
   , ->

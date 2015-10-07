@@ -11,10 +11,10 @@ GET         /jsRoutes.js                 controllers.Application.jsRoutes
 
 GET         /views/nav                   controllers.Application.navigation
 GET         /views/header                controllers.Application.header
-GET         /sell                        controllers.Application.sell
+GET         /views/sell                  controllers.Application.sell
 GET         /views/products              controllers.products.Products.products
 GET         /views/product/new           controllers.products.Products.newProduct
-GET         /views/product/edit           controllers.products.Products.newProduct
+GET         /views/product/edit          controllers.products.Products.newProduct
 GET         /views/product/detail        controllers.products.Products.productDetail
 
 POST        /product                     controllers.products.Products.saveProduct
