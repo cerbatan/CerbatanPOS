@@ -334,7 +334,7 @@ define(['./module']
       return
 
     EditProductController
-      .$inject = ['$filter','$log', '$modal', 'productsBackend', 'productsRoutes', 'localize', 'notifier', 'preparedTaxes', 'preparedProduct' ]
+      .$inject = ['$filter','$log', '$uibModal', 'productsBackend', 'productsRoutes', 'localize', 'notifier', 'preparedTaxes', 'preparedProduct' ]
 
 
     NewBrandModalCtrl = ($modalInstance, newBrandName, showInput) ->
@@ -382,7 +382,7 @@ define(['./module']
       return
 
     AddTaxModalCtrl
-      .$inject = ['$modalInstance']
+      .$inject = ['$uibModalInstance']
 
 
     DetailProductCtrl = ($log, productsRoutes, preparedProduct) ->

@@ -1,5 +1,7 @@
 define [
     './sell.controller'
-    './productsContainer.directive'
+    './bookmarks.directive'
+    './sellingBackend.service'
+    './shoppingLists.service'
   ]
   , ->

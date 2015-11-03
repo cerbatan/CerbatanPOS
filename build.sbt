@@ -20,13 +20,12 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "3.3.4",
   "org.webjars" % "font-awesome" % "4.3.0-2",
   "org.webjars" % "angularjs" % "1.3.16",
-  "org.webjars" % "angular-ui-bootstrap" % "0.13.0",
+  "org.webjars" % "angular-ui-bootstrap" % "0.14.3",
   "org.webjars.bower" % "angular-scroll" % "0.7.1" exclude("org.webjars.bower", "angular"),
   "org.webjars" % "ng-tags-input" % "2.3.0",
-  "org.webjars" % "angular-ui-select" % "0.11.2",
-  "org.webjars" % "angular-toastr" % "1.5.0"
-  // Add your own project dependencies in the form:
-  // "group" % "artifact" % "version"
+  "org.webjars" % "angular-ui-select" % "0.12.1",
+  "org.webjars" % "angular-toastr" % "1.5.0",
+  "org.webjars" % "angular-strap" % "2.3.4"
 )
 
 resolvers ++= Seq(

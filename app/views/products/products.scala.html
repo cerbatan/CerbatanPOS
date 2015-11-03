@@ -50,7 +50,7 @@
                         </table>
                     </div>
                     <div ng-if="ctrl.totalProducts">
-                        <pagination total-items="ctrl.totalProducts"
+                        <uib-pagination total-items="ctrl.totalProducts"
                         ng-model="ctrl.currentPage"
                         items-per-page="8"
                         max-size="5"
@@ -59,7 +59,7 @@
                         previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
                         num-pages="numPages" ng-hide="numPages<=1"
                         ng-change="ctrl.pageChange()"
-                        ></pagination>
+                        ></uib-pagination>
                     </div>
                 </div>
             </div>

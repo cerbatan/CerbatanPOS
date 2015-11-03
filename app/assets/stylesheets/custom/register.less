@@ -12,7 +12,7 @@
 }
 
 
-.products-container {
+.bookmarks {
   padding: 10px 12px 10px 12px;
   margin: 0;
   list-style: none;
@@ -105,8 +105,21 @@
 
 .price-badge {
   font-size: @font-size-base;
-  margin-top: 3px;
+  //margin-top: 3px;
   cursor: pointer; cursor: hand;
+}
+
+.table-prices {
+  > thead,
+  > tbody,
+  > tfoot {
+    > tr {
+      > th,
+      > td {
+        padding: 2px;
+      }
+    }
+  }
 }
 
 .table-hover {
@@ -123,4 +136,51 @@
 
 .parent:hover .child, .parent.hover .child {
   display: block;
+}
+
+#product-search {
+  .dropdown-menu {
+    font-size: @font-size-h4;
+    background-color: @dropdown-bg;
+    width: 100%;
+
+    // Links within the dropdown menu
+    > li {
+      > a {
+        display: block;
+        padding: 7px 20px;
+        clear: both;
+        font-weight: normal;
+        line-height: @headings-line-height;
+        color: @dropdown-link-color;
+        white-space: nowrap; // prevent links from randomly breaking onto new lines
+
+        > .dropdown-sku {
+          font-size: ceil((@font-size-base * 0.7));
+          font-style: italic;
+        }
+      }
+    }
+  }
+  // Hover/Focus state
+  .dropdown-menu > li > a {
+    &:hover,
+    &:focus {
+      text-decoration: none;
+      color: @dropdown-link-hover-color;
+      background-color: @brand-info;
+    }
+  }
+
+  // Active state
+  .dropdown-menu > .active > a {
+    &,
+    &:hover,
+    &:focus {
+      color: @dropdown-link-active-color;
+      text-decoration: none;
+      outline: 0;
+      background-color: @brand-info;
+    }
+  }
 }

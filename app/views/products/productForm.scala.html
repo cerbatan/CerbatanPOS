@@ -120,9 +120,9 @@
             <div class="panel-body">
 
                 <div class="ui-tab-container ui-tab-reverse">
-                    <tabset class="ui-tab">
-                        <tab>
-                            <tab-heading i18n="Standard"></tab-heading>
+                    <uib-tabset class="ui-tab">
+                        <uib-tab>
+                            <uib-tab-heading i18n="Standard"></uib-tab-heading>
                             <div class="well well-sm bg-reverse">
                                 <div class="c-section-header">
                                     <span class="c-legend">Track Stock</span>
@@ -167,7 +167,7 @@
                                                     <input id="fractionProportion" name="fractionProportion{{$index}}" class="form-control"
                                                             type="number" min="1" mgMaxlength="6" ng-model="fraction.qty"
                                                             ng-change="ctrl.fractionProportionChanged($index)" ng-disabled="$index==0"
-                                                            i18n="i18n-placeholder" placeholder="Eg. 100" popover="How many of this fractions are contained in the main package?" popover-trigger="focus"
+                                                            i18n="i18n-placeholder" placeholder="Eg. 100" uib-popover="How many of this fractions are contained in the main package?" popover-trigger="focus"
                                                             required>
                                                 </div>
                                                 <div class="col-sm-4" ng-class="{ 'has-error' : productForm['fractionPrice'+$index].$invalid && !productForm['fractionPrice'+$index].$pristine }">
@@ -188,12 +188,12 @@
                             </div>
 
 
-                        </tab>
-                        <tab disabled="true">
-                            <tab-heading i18n="Composite"></tab-heading>
+                        </uib-tab>
+                        <uib-tab disabled="true">
+                            <uib-tab-heading i18n="Composite"></uib-tab-heading>
 
-                        </tab>
-                    </tabset>
+                        </uib-tab>
+                    </uib-tabset>
                 </div>
                 <hr class="spacer-10"/>
                 <div class="row pull-right">
@@ -220,19 +220,19 @@
 <div class="form-group">
 <div class="col-xs-8">
 <label class="control-label" for="newBrand" i18n="Brand Name"></label>
-<input id="newBrand" class="form-control" type="text" ng-model="modalCtrl.newBrandName" min="1" ng-change="modalCtrl.inputChange()" focus-here="modalCtrl.showInput">
+<input id="newBrand" class="form-control" type="text" ng-model="modalCtrl.newBrandName" min="1" ng-change="modalCtrl.inputChange()" focus-here="modalCtrl.showInput" focus-delay="250">
 </div>
 </div>
 </form>
 </div>
 </div>
 <div class="modal-footer">
-<button class="btn btn-info" ng-click="modalCtrl.ok()" i18n="Add" ng-disabled="modalCtrl.disableSave" accesskey="A" focus-here="!modalCtrl.showInput"></button>
+<button class="btn btn-info" ng-click="modalCtrl.ok()" i18n="Add" ng-disabled="modalCtrl.disableSave" accesskey="A" focus-here="!modalCtrl.showInput" focus-delay="250"></button>
 <button class="btn btn-warning" ng-click="modalCtrl.cancel()" i18n="Cancel"></button>
 </div>
 </script>
 
-<script type="text/ng-template" id="addTaxModal.html">
+<script type="text/ng-template" id="addTaxModal.html">her
 <div class="modal-header">
 <h3 i18n="Add Tax"></h3>
 </div>
@@ -241,7 +241,7 @@
 <div class="row">
 <div class="col-sm-5 col-sm-offset-1">
 <label class="control-label" for="newTax" i18n="Name"></label>
-<input id="newTax" class="form-control" type="text" ng-model="modalCtrl.newTax.name" min="1" ng-change="modalCtrl.inputChange()" focus-here>
+<input id="newTax" class="form-control" type="text" ng-model="modalCtrl.newTax.name" min="1" ng-change="modalCtrl.inputChange()" focus-here focus-delay="250">
 </div>
 <div class="col-sm-3 col-sm-offset-1">
 <label class="control-label" for="newTaxPercentage" i18n="Percentage"></label>

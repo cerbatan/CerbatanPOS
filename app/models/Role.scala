@@ -1,6 +1,7 @@
 package models
 
 sealed trait Role
+
 object Role {
   case object Owner extends Role
   case object Administrator extends Role

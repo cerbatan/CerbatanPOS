@@ -1,11 +1,27 @@
 package repositories
 
-import models.{ProductBrief, Product}
+import models.{ListedProduct, ProductBrief, Product}
 import models.db._
 import org.virtuslab.unicorn.LongUnicornPlay._
 import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
 
 object ProductsRepository {
+  def getListedProducts(query: String)(implicit session: Session): List[ListedProduct] = {
+    val maybeItem: Option[Item] = itemsQuery.filter(_.sku === query).firstOption
+
+    maybeItem match {
+      case None =>
+        val items = for {
+          item <- itemsQuery if item.name.toLowerCase like s"%${query.toLowerCase()}%"
+        } yield (item.id.?, item.sku, item.name)
+
+        val list = items.take(5).sortBy(_._3.asc).list
+        list.map( _ match {case (itemId, sku, name) => ListedProduct(itemId.getOrElse(ItemId(-1)), sku, name) })
+      case Some(item) =>
+        List( ListedProduct(item.id.getOrElse(ItemId(-1)), item.sku, item.name) )
+    }
+  }
+
   def findById(id: ItemId)(implicit session: Session): Option[Product] = {
     val maybeItem: Option[Item] = ItemsRepository.findById(id)
 

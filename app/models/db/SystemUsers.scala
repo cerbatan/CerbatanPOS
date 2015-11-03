@@ -1,7 +1,7 @@
 package models.db
 
-import models.Role
-import models.Role.Guest
+import _root_.models.Role
+import _root_.models.Role.Guest
 import org.virtuslab.unicorn.LongUnicornPlay._
 import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
 

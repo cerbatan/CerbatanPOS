@@ -7,6 +7,7 @@ require(
     'angular-route'
     'angular-animate'
     'angular-scroll'
+    'angular-strap-tpl'
     'ui-bootstrap-tpls'
     'angular-tags-input'
     'angular-ui-select'

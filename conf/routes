@@ -28,6 +28,8 @@ POST        /products/tag                controllers.products.Products.addTag
 GET         /products/taxes              controllers.products.Products.taxes
 POST        /products/tax                controllers.products.Products.addTax
 
+GET         /sell/list                   controllers.sell.PointOfSale.getListedProducts(q: String)
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                controllers.Assets.versioned(path="/public", file)

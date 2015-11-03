@@ -115,12 +115,20 @@ define(['angular', './module']
         link = (scope, element, attrs) ->
           attrValue = (if attrs.focusHere.length == 0 then 'true' else attrs.focusHere)
           model = $parse(attrValue)
+          hasSelect = true if attrs.focusSelect?
+          focusDelay = if attrs.focusDelay? and attrs.focusDelay.length > 0 then scope.$eval(attrs.focusDelay) else 0
+
+          applyIt = ->
+              element[0].focus()
+              if hasSelect == true
+                $timeout ->
+                  element[0].select()
+              return
+
+
           scope.$watch model, (value) ->
-            console.log 'value=', value
             if value == true
-              $timeout ->
-                element[0].focus()
-                return
+              $timeout applyIt, focusDelay
             return
           return
 
@@ -130,6 +138,81 @@ define(['angular', './module']
         return directive
 
       app.directive('focusHere', ['$timeout', '$parse',FocusHere])
+    )()
+
+    (->
+      'use strict'
+      SelectHere = ($timeout, $parse) ->
+        link = (scope, element, attrs) ->
+          attrValue = (if attrs.selectHere.length == 0 then 'true' else attrs.selectHere)
+          model = $parse(attrValue)
+          scope.$watch model, (value) ->
+            if value == true
+              $timeout ->
+                element[0].select()
+                return
+            return
+          return
+
+        directive =
+          link: link
+
+        return directive
+
+      app.directive('selectHere', ['$timeout', '$parse',SelectHere])
+    )()
+
+    (->
+      'use strict'
+      KeyTrap = ($document) ->
+        link = (scope, element, attrs) ->
+          keyDownHandler = (e) -> scope.$apply(scope.keyTrap({event: e}))
+
+          $document.bind 'keydown', keyDownHandler
+          element.on '$destroy',
+            ->
+              $document.unbind 'keydown', keyDownHandler
+
+          return
+
+        directive =
+          restrict: 'A'
+          scope:
+            keyTrap: '&'
+          link: link
+
+        return directive
+
+      app.directive('keyTrap', ['$document',KeyTrap])
+    )()
+
+    (->
+      'use strict'
+      SelectOnFocus = ($document) ->
+        link = (scope, element, attrs) ->
+          focusedElement = null
+          onFocusHandler = () ->
+            if focusedElement != @
+              element[0].select()
+              focusedElement = @
+
+          onBlurHandler = () ->
+            focusedElement = null
+
+          element.on "click", onFocusHandler
+          element.on "blur", onBlurHandler
+
+          return
+
+        directive =
+          restrict: 'A'
+          scope:
+            keyTrap: '&'
+          link: link
+
+        return directive
+
+      app.directive('selectOnFocus', ['$document',SelectOnFocus])
     )()
 
     (->

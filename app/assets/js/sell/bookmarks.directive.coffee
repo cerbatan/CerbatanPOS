@@ -1,15 +1,15 @@
 define ['angular', './module'],
   (ng, app) ->
     (->
-      ProductsContaionerDirective  = ->
+      BookmarksDirective  = ->
         restrict: 'C'
         scope:
           products: '=products'
 
-        templateUrl: 'views/templates/products-container.html'
+        templateUrl: 'views/templates/bookmarks.html'
         link: (scope, element, attrs) ->
 
 
-      app.directive 'productsContainer', ProductsContaionerDirective
+      app.directive 'bookmarks', BookmarksDirective
 
     )()

@@ -1,71 +1,44 @@
 <div class="page page-dashboard fill-height" data-ng-controller="DashboardCtrl">
-
     <div class="row fill-height">
         <div class="col-md-6 fill-height">
             <div class="well well-custom c-row-no-padding bg-reverse" id="register">
                 <div id="register-list">
-                    <div class="input-group">
-                        <input type="text" class="form-control" i18n="i18n-placeholder" placeholder="Search for product...">
+                    <div class="input-group" id="product-search">
+                        <input type="text" class="form-control"
+                            i18n="i18n-placeholder" placeholder="Search for product..."
+                            uib-typeahead="product as product.name for product in ctrl.searchProducts($viewValue)"
+                            typeahead-loading="loadingProducts"
+                            typeahead-no-results="noResults"
+                            typeahead-wait-ms="250"
+                            typeahead-template-url="listedProductTpl.html"
+                            typeahead-min-length="3"
+                            typeahead-editable="false"
+                            typeahead-on-select="ctrl.productSelected($item, $model, $label)"
+                            ng-keypress="($event.which === 13)?ctrl.searchEnterPressed():ctrl.searchModified()"
+                            ng-model="ctrl.selectedProduct"
+                            select-here="ctrl.selectSearchInput"
+                            select-on-focus
+                        >
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
                     </div>
-                    <table class="table table-hover">
-                        <tbody>
-                            <tr ng-repeat="p in ctrl.cart">
-                                <td class="col-xs-1">
-                                    <span class="col-xs-10 col-xs-offset-2">
-                                        <a href class="btn-icon btn-icon-round btn-icon-xs bg-warning" ng-click="ctrl.removeFraction($index)" popover-template="'changeCountTemplate.html'" popover-placement="right"><strong>{{p.count}}</strong></a>
-                                    </span>
-                                </td>
-                                <td class="col-xs-8">
-                                    <a href ng-click="ctrl.showProduct(product.id)"><strong>{{p.name}}</strong></a>
-                                    <span class="ui-rating ui-rating-warning">
-                                        <i ng-click="product.starred=!product.starred" class="fa" ng-class="p.bookmarked || hovered? 'fa-star':'fa-star-o'" ng-mouseenter="hovered=true" ng-mouseleave="hovered=false">
-                                        </i>
-                                    </span>
-                                </td>
-                                <td class="col-xs-3 text-right">
-                                    <span class="col-xs-10">
-                                        <span class="badge badge-default price-badge" popover-template="'changePriceTemplate.html'" popover-placement="left">{{p.retailPrice*p.count}}</span>
-                                    </span>
-                                    <span class="col-xs-2 text-center">
-                                        <a href class="btn-icon btn-icon-round btn-icon-xs text-danger"><i class="fa fa-remove"></i></a>
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <script type="text/ng-template" id="changeCountTemplate.html">
-                        <div class="form-group">
-                            <label i18n="Quantity"></label>
-                            <spinner-input model="p.count" initval="{{p.count}}" min="1" max="10000"></spinner-input>
-                        </div>
-                    </script>
-                    <script type="text/ng-template" id="changePriceTemplate.html">
-                        <div class="form-group">
-                            <label class="control-label" for="retailPrice"><span i18n="Unit Price"></span>&nbsp;&nbsp;<small i18n="(After Taxes)" class="c-label-subscript"></small></label>
-                            <div class="input-group">
-                                <span class="input-group-addon">$</span>
-                                <input id="retailPrice" class="form-control" type="text" ng-model="p.retailPrice" ng-change="ctrl.retailPriceUpdated()" money mgMaxlength="8" focus-here>
-                            </div>
-                        </div>
-                    </script>
+                    <ng-include src="'/views/templates/products-list.html'"></ng-include>
                 </div>
                 <div class="col-xs-offset-7 col-xs-5">
-                    <table class="table table-condensed borderless">
+                    <table class="table table-prices borderless">
                         <tbody>
                             <tr>
                                 <td i18n="Subtotal"></td>
-                                <td class="text-right">$0.00</td>
+                                <td class="text-right">{{ctrl.price() | currency}}</td>
                             </tr>
                             <tr>
                                 <td i18n="Tax"></td>
-                                <td class="text-right">$0.00</td>
+                                <td class="text-right">{{ctrl.taxes() | currency}}</td>
                             </tr>
                             <tr>
                                 <td><strong i18n="TOTAL"></strong></td>
-                                <td class="text-right"><strong>$0.00</strong></td>
+                                <td class="text-right"><strong>{{ctrl.totalPrice() | currency}}</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -80,23 +53,85 @@
                             <span class="glyphicon glyphicon-plus"></span>
                             <span i18n="New"></span>
                         </button>
-                        <button type="button" class="btn btn-w-sm btn-gap-v btn-round btn-info">
+                        <button type="button" class="btn btn-w-sm btn-gap-v btn-round btn-info" ng-click="ctrl.charge()">
                             <span class="glyphicon glyphicon-usd"></span>
-                            <span i18n="Pay"></span>
+                            <span i18n="Charge"></span>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 hidden-sm fill-height">
+        <div class="col-md-6 visible-md-block visible-lg-block fill-height">
             <div class="panel panel-default products-panel" id="register">
                 <div class="panel-heading">
                     <strong i18n="Bookmarks"></strong>
                 </div>
-                <div class="products-container" products="ctrl.bookmarks"></div>
+                <div class="bookmarks" products="ctrl.bookmarks"></div>
             </div>
         </div>
     </div>
-
 </div>
-  
+<script type="text/ng-template" id="listedProductTpl.html">
+<a tabindex="-1">
+    <div  ng-bind-html="match.model.name | uibTypeaheadHighlight:query"></div>
+    <div class="dropdown-sku"><span i18n="SKU:"></span>{{match.model.sku}}</div>
+</a>
+</script>
+
+<script type="text/ng-template" id="selectFractionModal.html">
+<div class="modal-body" >
+<div class="c-section-header">
+    <h4 i18n="Select Fraction"></h4>
+</div>
+<div class="list-group" data-key-trap="selectFractionCtrl.keyDown(event)" tabindex="0">
+    <a href class="list-group-item" ng-repeat="fraction in selectFractionCtrl.fractions" ng-class="{'active': selectFractionCtrl.activeIndex === $index}" ng-click="selectFractionCtrl.selected($index)">
+        <span>{{fraction.name}}</span><span class="pull-right">{{fraction.price | currency}}</span>
+    </a>
+</div>
+</div>
+</script>
+
+<script type="text/ng-template" id="registerPaymentModal.html">
+<div class="modal-header bg-danger text-center">
+    <h3 class="no-margin" i18n="Payment"></h3>
+</div>
+<div class="modal-body">
+    <table class="table borderless size-h4">
+        <tbody>
+            <tr>
+                <td class="col-xs-4">
+                    <strong i18n="Total"></strong>
+                </td>
+                <td class="col-xs-8 text-right">
+                    <strong>{{paymentCtrl.payment | currency}}</strong>
+                </td>
+            </tr>
+            <tr class="row-border-bottom">
+                <td class="col-xs-4 force-media-middle">
+                    <span i18n="Tendered"></span>
+                </td>
+                <td class="col-xs-8">
+                    <div class="input-group">
+                    <span class="input-group-addon">$</span>
+                        <input class="form-control no-margin text-right size-h4" focus-here focus-select focus-delay="300" select-on-focus type="text" ng-model="paymentCtrl.tendered" money mgMaxlength="12" precision="2" >
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-xs-4 force-media-middle">
+                    <strong i18n="Change"></strong>
+                </td>
+                <td class="col-xs-8 text-right">
+                    <strong>{{paymentCtrl.change() | currency}}</strong>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-w-sm btn-default" ng-click="paymentCtrl.cancel()" i18n="Cancel"></button>
+    <button type="button" class="btn btn-w-sm btn-info" ng-click="paymentCtrl.ok()" accesskey="C">
+        <span class="glyphicon glyphicon-ok"></span>&nbsp;<span i18n="Charge"></span>
+    </button>
+</div>
+</script>

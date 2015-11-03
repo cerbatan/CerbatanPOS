@@ -5,6 +5,7 @@ define(['angular']
       [
         'ngRoute'
         'ui.bootstrap'
+        'ngAnimate'
         'duScroll'
         'toastr'
         'app.localization'

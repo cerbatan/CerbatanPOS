@@ -1,0 +1,61 @@
+<table class="table table-hover">
+    <tbody>
+    <tr ng-repeat="p in ctrl.shoppingList()">
+        <td class="col-xs-1">
+            <span class="col-xs-10 col-xs-offset-2">
+                <a href class="btn-icon btn-icon-round btn-icon-xs bg-warning"
+                   data-content-template="changeCountTemplate.html"
+                   data-placement="right" data-animation="am-flip-x" data-auto-close="1" bs-popover><strong>{{p.count}}</strong></a>
+                <!--<a href class="btn-icon btn-icon-round btn-icon-xs bg-warning"-->
+                   <!--uib-popover-template="'changeCountTemplate.html'"-->
+                   <!--popover-placement="right"><strong>{{p.count}}</strong></a>-->
+            </span>
+        </td>
+        <td class="col-xs-8">
+            <a href ng-click="ctrl.showProduct(p)">
+                <p class="no-margin">
+                    <strong>{{p.name}}</strong>
+                    <span class="ui-rating ui-rating-warning">
+                        <i ng-click="ctrl.bookmarkProduct(p)" class="fa"
+                           ng-class="p.bookmarked || hovered? 'fa-star':'fa-star-o'"
+                           ng-mouseenter="hovered=true" ng-mouseleave="hovered=false">
+                        </i>
+                    </span>
+                </p>
+                <small>{{p.fractionName}}</small></a>
+
+        </td>
+        <td class="col-xs-3 text-right">
+            <span class="col-xs-10">
+                <button class="badge badge-default price-badge" data-content-template="changePriceTemplate.html" data-placement="left" data-animation="am-flip-x" data-auto-close="1" bs-popover>{{p.retailPrice*p.count | currency}}</button>
+                <!--<button class="badge badge-default price-badge"-->
+                      <!--uib-popover-template="'changePriceTemplate.html'" popover-placement="left" popover-append-to-body="true">{{p.retailPrice*p.count | currency}}</button>-->
+            </span>
+            <span class="col-xs-2 text-center">
+                <a href class="btn-icon btn-icon-round btn-icon-xs text-danger" ng-click="ctrl.deleteProduct(p)">
+                    <i class="fa fa-remove"></i>
+                </a>
+            </span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<script type="text/ng-template" id="changeCountTemplate.html">
+    <div class="form-group">
+        <label i18n="Quantity"></label>
+        <spinner-input ng-model="p.count" initval="{{p.count}}" min="1" max="10000"></spinner-input>
+    </div>
+</script>
+<script type="text/ng-template" id="changePriceTemplate.html">
+    <div class="form-group">
+        <label class="control-label" for="retailPrice"><span i18n="Unit Price"></span>&nbsp;&nbsp;
+            <small i18n="(After Taxes)" class="c-label-subscript"></small>
+        </label>
+
+        <div class="input-group">
+            <span class="input-group-addon">$</span>
+            <input id="retailPrice" class="form-control" type="text" ng-model="p.retailPrice"
+                   ng-change="ctrl.retailPriceChanged(p)" money mgMaxlength="8" focus-here focus-select focus-delay="250">
+        </div>
+    </div>
+</script>

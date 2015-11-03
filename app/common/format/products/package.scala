@@ -1,6 +1,6 @@
 package common.format
 
-import models.{ProductBrief, Product}
+import models.{ListedProduct, ProductBrief, Product}
 import models.db._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -113,4 +113,10 @@ package object products {
     (__ \ "total").write[Int] and
       (__ \ "briefs").write[Seq[ProductBrief]]
     )(unlift(Tuple2.unapply[Int, Seq[ProductBrief]]))
+
+  implicit val listedProductWrites: Writes[ListedProduct] = (
+    (__ \ "id").write[ItemId] and
+      (__ \ "sku").write[String] and
+      (__ \ "name").write[String]
+    )(unlift(ListedProduct.unapply))
 }
