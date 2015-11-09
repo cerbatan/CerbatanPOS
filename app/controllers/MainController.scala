@@ -1,24 +1,29 @@
 package controllers
 
+import javax.inject.Inject
+
 import jp.t2v.lab.play2.auth.LoginLogout
+import models.Role.Owner
+import models.db.SystemUser
+import org.mindrot.jbcrypt.BCrypt
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.db.slick._
 import play.api.mvc.{Action, Controller}
 import repositories.SystemUserRepository
 
+
+
 import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.Play.current
+import scala.concurrent.ExecutionContext.Implicits.global
 
-object MainController extends Controller with LoginLogout with AuthConfiguration {
+case class UserCredentials(email: String, password: String)
 
-  val loginForm = Form {
-    DB.withSession {
-      implicit session: Session =>
-        mapping("email" -> email, "password" -> text)(SystemUserRepository.authenticate)(_.map(u => (u.email, "")))
-          .verifying("Invalid email or password", result => result.isDefined)
-    }
+class MainController @Inject()(val dbConfigProvider: DatabaseConfigProvider, val systemUsers: SystemUserRepository) extends Controller with LoginLogout with AuthConfiguration {
+
+
+  val loginForm = Form[UserCredentials] {
+        mapping("email" -> email, "password" -> text)(UserCredentials.apply)(uc => Some((uc.email, "")))
   }
 
   def login = Action { implicit request =>
@@ -34,7 +39,15 @@ object MainController extends Controller with LoginLogout with AuthConfiguration
   def authenticate = Action.async { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => Future.successful(BadRequest(views.html.login(formWithErrors))),
-      user => gotoLoginSucceeded(user.get.id.get.value)
+      userCredentials => {
+        authenticateCredentials(userCredentials.email, userCredentials.password).flatMap(_ match {
+          case None =>
+            val invalidForm = loginForm.withGlobalError("Invalid email or password")
+            Future.successful(BadRequest(views.html.login(invalidForm)))
+          case Some(user) =>
+            gotoLoginSucceeded(user.id.get.value)
+        })
+      }
     )
   }
 

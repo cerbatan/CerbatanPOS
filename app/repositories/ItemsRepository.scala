@@ -1,12 +1,13 @@
 package repositories
 
-import models.db._
+import models.db.{Items, Item, ItemId}
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
+import slick.dbio.DBIO
 
 object ItemsRepository extends BaseIdRepository[ItemId, Item, Items](itemsQuery) {
-  def findByName(name: String)(implicit session: Session): Option[Item] = {
+  def findByName(name: String): DBIO[Option[Item]] = {
     val tag = query.filter(_.name === name)
-    tag.firstOption
+    tag.result.headOption
   }
 }

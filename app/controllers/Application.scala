@@ -1,11 +1,15 @@
 package controllers
 
+import javax.inject.Inject
+
 import jp.t2v.lab.play2.auth.AuthElement
 import models.Role.{Guest, Seller}
-import play.api.Routes
-import play.api.mvc.{Action, Controller}
+import play.api.db.slick.DatabaseConfigProvider
+import play.api.mvc.Controller
+import play.api.routing.JavaScriptReverseRouter
+import repositories.SystemUserRepository
 
-object Application extends Controller with AuthElement with AuthConfiguration {
+class Application @Inject()(val dbConfigProvider: DatabaseConfigProvider, val systemUsers: SystemUserRepository) extends Controller with AuthElement with AuthConfiguration {
   def main = StackAction(AuthorityKey -> Seller) { implicit request =>
     Ok(views.html.main("Cerbatan POS"))
   }
@@ -25,7 +29,7 @@ object Application extends Controller with AuthElement with AuthConfiguration {
 
   def jsRoutes = StackAction(AuthorityKey -> Guest) { implicit request =>
     Ok(
-      Routes.javascriptRouter("jsRoutes")(
+      JavaScriptReverseRouter("jsRoutes")(
         controllers.products.routes.javascript.Products.brands,
         controllers.products.routes.javascript.Products.addBrand,
         controllers.products.routes.javascript.Products.tags,

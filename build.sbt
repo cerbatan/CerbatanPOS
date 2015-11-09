@@ -7,15 +7,16 @@ scalaVersion := "2.11.7"
 //crossScalaVersions := Seq("2.10.5", scalaVersion.value)
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-slick" % "0.8.1",
-  "org.virtuslab" %% "unicorn-play" % "0.6.3",
-  "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0",
-  "com.h2database" % "h2" % "1.4.181" % "test",
-  "jp.t2v" %% "play2-auth" % "0.13.2",
-  "jp.t2v" %% "play2-auth-test" % "0.13.2" % "test",
-  "org.mindrot" % "jbcrypt" % "0.3m",
   ws,
-  "org.webjars" %% "webjars-play" % "2.3.0-3",
+  specs2 % Test,
+  "com.typesafe.play" %% "play-slick" % "1.1.0",
+  "com.typesafe.play" %% "play-slick-evolutions" % "1.1.0",
+  "org.virtuslab" %% "unicorn-play" % "1.0.0",
+  "com.h2database" % "h2" % "1.4.190",
+  "jp.t2v" %% "play2-auth" % "0.14.1",
+  "jp.t2v" %% "play2-auth-test" % "0.14.1" % "test",
+  "org.mindrot" % "jbcrypt" % "0.3m",
+  "org.webjars" %% "webjars-play" % "2.4.0-2",
   "org.webjars" % "requirejs-domready" % "2.0.1-2",
   "org.webjars" % "bootstrap" % "3.3.4",
   "org.webjars" % "font-awesome" % "4.3.0-2",
@@ -29,10 +30,12 @@ libraryDependencies ++= Seq(
 )
 
 resolvers ++= Seq(
-  Resolver.sonatypeRepo("snapshots")
+  Resolver.sonatypeRepo("snapshots"),
+  "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 )
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala, SbtWeb)
+routesGenerator := InjectedRoutesGenerator
 
 //pipelineStages := Seq(rjs)
 

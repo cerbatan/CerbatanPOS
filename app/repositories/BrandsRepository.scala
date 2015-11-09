@@ -1,17 +1,18 @@
 package repositories
 
-import models.db.{Brands, Brand, BrandId}
+import models.db.{Brand, BrandId, Brands}
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
+import slick.dbio.DBIO
 
 object BrandsRepository extends BaseIdRepository[BrandId, Brand, Brands](brandsQuery) {
-  def findByName(name: String)(implicit session: Session): Option[Brand] = {
+  def findByName(name: String): DBIO[Option[Brand]] = {
     val brand = query.filter(_.name === name)
-    brand.firstOption
+    brand.result.headOption
   }
 
-  def filter(pattern: String)(implicit session: Session) : List[Brand] = {
-    val brands = for { brand <- query if brand.name.toLowerCase like s"%${pattern.toLowerCase()}%"  } yield brand
-    brands.list
+  def filter(pattern: String): DBIO[Seq[Brand]] = {
+    val brands = for {brand <- query if brand.name.toLowerCase like s"%${pattern.toLowerCase()}%"} yield brand
+    brands.result
   }
 }

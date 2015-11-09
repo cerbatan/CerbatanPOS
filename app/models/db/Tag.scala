@@ -1,9 +1,9 @@
 package models.db
 
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
-import scala.slick.lifted
-import scala.slick.lifted.ProvenShape
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
+import slick.lifted
+import slick.lifted.ProvenShape
 
 case class TagId(id: Long) extends AnyVal with BaseId
 

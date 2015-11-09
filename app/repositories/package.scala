@@ -1,6 +1,6 @@
 import models.db._
+import slick.lifted.TableQuery
 
-import scala.slick.lifted.TableQuery
 
 package object repositories {
   lazy val systemUsersQuery: TableQuery[SystemUsers] = TableQuery[SystemUsers]
@@ -12,5 +12,5 @@ package object repositories {
   lazy val tagsForItemQuery: TableQuery[TagsForItem] = TableQuery[TagsForItem]
   lazy val fractionsQuery: TableQuery[Fractions] = TableQuery[Fractions]
 
-  class BasicRepository[E <: scala.slick.lifted.AbstractTable[_]](protected val query: TableQuery[E]);
+  class BasicRepository[E <: slick.lifted.AbstractTable[_]](protected val query: TableQuery[E]);
 }

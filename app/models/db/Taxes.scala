@@ -1,8 +1,8 @@
 package models.db
 
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
-import scala.slick.lifted
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
+import slick.lifted
 
 case class TaxId(id: Long) extends AnyVal with BaseId
 

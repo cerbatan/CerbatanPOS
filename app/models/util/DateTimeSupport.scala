@@ -2,7 +2,7 @@ package models.util
 
 import java.sql.Timestamp
 import java.time.{ZoneId, LocalDateTime, Instant}
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
 
 object DateTimeSupport {
      implicit val localDateTimeType = MappedColumnType.base[LocalDateTime, Timestamp](

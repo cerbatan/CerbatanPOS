@@ -2,11 +2,12 @@ package repositories
 
 import models.db._
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
+import slick.dbio.DBIO
 
 object TaxesRepository extends BaseIdRepository[TaxId, Tax, Taxes](taxesQuery) {
-  def findByName(name: String)(implicit session: Session): Option[Tax] = {
+  def findByName(name: String): DBIO[Option[Tax]] = {
     val tag = query.filter(_.name === name)
-    tag.firstOption
+    tag.result.headOption
   }
 }

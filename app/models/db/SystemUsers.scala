@@ -3,11 +3,11 @@ package models.db
 import _root_.models.Role
 import _root_.models.Role.Guest
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
 
 
-import scala.slick.lifted.ProvenShape
-import scala.slick.lifted
+import slick.lifted.ProvenShape
+import slick.lifted
 
 case class SystemUserId(id: Long) extends AnyVal with BaseId
 

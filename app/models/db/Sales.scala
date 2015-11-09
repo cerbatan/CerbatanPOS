@@ -3,8 +3,8 @@ package models.db
 import java.time.LocalDateTime
 
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
-import scala.slick.lifted
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
+import slick.lifted
 import models.util.DateTimeSupport._
 
 

@@ -1,9 +1,10 @@
 package models.db
 
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
 import repositories._
-import scala.slick.lifted
+import slick.lifted
+
 
 case class FractionId(id: Long) extends AnyVal with BaseId
 
