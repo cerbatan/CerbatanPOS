@@ -3,19 +3,14 @@ package controllers
 import javax.inject.Inject
 
 import jp.t2v.lab.play2.auth.LoginLogout
-import models.Role.Owner
-import models.db.SystemUser
-import org.mindrot.jbcrypt.BCrypt
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.db.slick._
 import play.api.mvc.{Action, Controller}
 import repositories.SystemUserRepository
 
-
-
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 case class UserCredentials(email: String, password: String)
 

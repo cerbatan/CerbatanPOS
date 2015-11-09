@@ -2,6 +2,7 @@ package controllers.sell
 
 import javax.inject.Inject
 
+import common.format.products._
 import controllers.AuthConfiguration
 import jp.t2v.lab.play2.auth.AuthElement
 import models.Role.Seller
@@ -9,8 +10,6 @@ import play.api.db.slick._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 import repositories.{ProductsRepository, SystemUserRepository}
-
-import common.format.products._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

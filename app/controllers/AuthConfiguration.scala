@@ -3,24 +3,21 @@ package controllers
 import jp.t2v.lab.play2.auth._
 import models.Role
 import models.Role._
-import models.db.{SystemUserId, SystemUser}
+import models.db.{SystemUser, SystemUserId}
 import org.mindrot.jbcrypt.BCrypt
-import play.api.db.slick.{HasDatabaseConfigProvider, HasDatabaseConfig, DatabaseConfigProvider}
+import play.Logger
+import play.api.db.slick.HasDatabaseConfigProvider
 import play.api.mvc.RequestHeader
 import play.api.mvc.Results._
 import repositories.SystemUserRepository
 import slick.driver.JdbcProfile
-import scala.concurrent.{ExecutionContext, Future}
 
-import scala.reflect._
-import play.Logger
-
-import slick.driver.H2Driver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect._
 
 trait AuthConfiguration extends AuthConfig with HasDatabaseConfigProvider[JdbcProfile] {
   val systemUsers: SystemUserRepository
-  import dbConfig.driver.api._
 
   type Id = Long
 
@@ -30,6 +27,7 @@ trait AuthConfiguration extends AuthConfig with HasDatabaseConfigProvider[JdbcPr
   override lazy val idContainer = AsyncIdContainer(new TransparentIdContainer[Id])
   val idTag: ClassTag[Id] = classTag[Id]
   val sessionTimeoutInSeconds = 3600
+
   def resolveUser(id: Id)(implicit ctx: ExecutionContext) = db.run(systemUsers.findById(SystemUserId(id)))
 
 

@@ -1,6 +1,6 @@
 package repositories
 
-import models.db.{Items, Item, ItemId}
+import models.db.{Item, ItemId, Items}
 import org.virtuslab.unicorn.LongUnicornPlay._
 import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
 import slick.dbio.DBIO

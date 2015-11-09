@@ -3,7 +3,6 @@ package repositories
 import models.db.{ItemId, Tag, TagId, Tags}
 import org.virtuslab.unicorn.LongUnicornPlay._
 import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
-
 import slick.dbio.DBIO
 
 object TagsRepository extends BaseIdRepository[TagId, Tag, Tags](tagsQuery) {

@@ -90,14 +90,14 @@ class ProductsRepository {
 
     totalBriefs.flatMap(total => {
       partialBriefs.flatMap(briefTuples => {
-        val getTagsActions = briefTuples.map{ case (itemId, itemName, sku, brandName, retailPrice, stockCount) => {
-            TagsRepository.getTagsForItem(itemId).map( tags => ProductBrief(itemId, itemName, sku, brandName, tags.map(_.name), retailPrice, stockCount) )
-          }
+        val getTagsActions = briefTuples.map { case (itemId, itemName, sku, brandName, retailPrice, stockCount) => {
+          TagsRepository.getTagsForItem(itemId).map(tags => ProductBrief(itemId, itemName, sku, brandName, tags.map(_.name), retailPrice, stockCount))
+        }
         }
 
         DBIO.sequence(getTagsActions)
 
-      }).map( briefs => (total, briefs) )
+      }).map(briefs => (total, briefs))
     })
   }
 
@@ -146,13 +146,13 @@ class ProductsRepository {
     val itemToUpdate: Item = Item(p.id, p.sku, p.name, brandId)
     val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
 
-    ItemsRepository.save(itemToUpdate).flatMap( itemId => {
+    ItemsRepository.save(itemToUpdate).flatMap(itemId => {
       val itemStock = ItemStock(None, itemId, p.cost, p.price, taxId, p.retailPrice, p.trackStock, p.stockCount, p.alertLowStock, p.alertStockLevel)
       val stock = for {s <- itemsStockQuery if s.item === itemToUpdate.id} yield s
       stock.update(itemStock)
         .andThen(tagsForItemQuery.filter(_.item === itemToUpdate.id).delete)
         .andThen(tagsForItemQuery ++= p.tags.map(t => (t.id.get -> itemId)))
-        .andThen(FractionsRepository.saveAll( p.fractions.map(f => f.copy(item = Some(itemId))) ))
+        .andThen(FractionsRepository.saveAll(p.fractions.map(f => f.copy(item = Some(itemId)))))
         .andThen(DBIO.successful(itemId))
     }).transactionally
   }

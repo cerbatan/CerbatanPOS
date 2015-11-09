@@ -1,7 +1,7 @@
 package common.format
 
-import models.{ListedProduct, ProductBrief, Product}
 import models.db._
+import models.{ListedProduct, Product, ProductBrief}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
