@@ -1,21 +1,24 @@
 package controllers.sell
 
+import javax.inject.Inject
+
+import common.format.products._
 import controllers.AuthConfiguration
 import jp.t2v.lab.play2.auth.AuthElement
-import models.ListedProduct
 import models.Role.Seller
 import play.api.db.slick._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import repositories.ProductsRepository
-import common.format.products._
-import play.api.Play.current
+import repositories.{ProductsRepository, SystemUserRepository}
 
-object PointOfSale extends Controller with AuthElement with AuthConfiguration {
-  def getListedProducts(query: String) = StackAction(AuthorityKey -> Seller) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val products = ProductsRepository.getListedProducts(query)
-      Ok(Json.toJson(products))
-    }
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class PointOfSale @Inject()(val dbConfigProvider: DatabaseConfigProvider,
+                            val systemUsers: SystemUserRepository,
+                            val productsRepository: ProductsRepository) extends Controller with AuthElement with AuthConfiguration {
+
+  def getListedProducts(query: String) = AsyncStack(AuthorityKey -> Seller) { implicit request =>
+    val productsDBAction = productsRepository.getListedProducts(query)
+    db.run(productsDBAction).map(products => Ok(Json.toJson(products)))
   }
 }

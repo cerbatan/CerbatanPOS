@@ -1,132 +1,159 @@
 package repositories
 
-import models.{ListedProduct, ProductBrief, Product}
+import javax.inject.Singleton
+
 import models.db._
-import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
+import models.{ListedProduct, Product, ProductBrief}
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
 
-object ProductsRepository {
-  def getListedProducts(query: String)(implicit session: Session): List[ListedProduct] = {
-    val maybeItem: Option[Item] = itemsQuery.filter(_.sku === query).firstOption
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-    maybeItem match {
+@Singleton
+class ProductsRepository {
+  def getListedProducts(query: String): DBIO[Seq[ListedProduct]] = {
+    val itemBySkuAction = itemsQuery.filter(_.sku === query).result.headOption
+
+    itemBySkuAction.flatMap(maybeItem => maybeItem match {
       case None =>
         val items = for {
           item <- itemsQuery if item.name.toLowerCase like s"%${query.toLowerCase()}%"
         } yield (item.id.?, item.sku, item.name)
 
-        val list = items.take(5).sortBy(_._3.asc).list
-        list.map( _ match {case (itemId, sku, name) => ListedProduct(itemId.getOrElse(ItemId(-1)), sku, name) })
+        items.result.map(list => list.map { case (id, sku, name) => ListedProduct(id.getOrElse(ItemId(-1)), sku, name) })
+
       case Some(item) =>
-        List( ListedProduct(item.id.getOrElse(ItemId(-1)), item.sku, item.name) )
-    }
+        DBIO.from(Future.successful(List(ListedProduct(item.id.getOrElse(ItemId(-1)), item.sku, item.name))))
+    })
+
   }
 
-  def findById(id: ItemId)(implicit session: Session): Option[Product] = {
-    val maybeItem: Option[Item] = ItemsRepository.findById(id)
+  def findById(id: ItemId): DBIO[Option[Product]] = {
+    val findItemAction = ItemsRepository.findById(id)
 
-    if (maybeItem.nonEmpty) {
-      val item: Item = maybeItem.get
+    findItemAction.flatMap(maybeItem => maybeItem match {
+      case None =>
+        DBIO.successful(None)
+      case Some(item) => {
+        val brandIdAction = item.brand match {
+          case None =>
+            DBIO.successful(None)
+          case Some(brandId) =>
+            BrandsRepository.findById(brandId)
+        }
 
-      val itemBrand = item.brand.map(brandId => BrandsRepository.findById(brandId).get)
-      val itemTags = TagsRepository.getTagsForItem(id)
+        brandIdAction.flatMap(
+          brand => {
+            TagsRepository.getTagsForItem(id).flatMap(
+              tags => {
+                FractionsRepository.findByItemId(id).flatMap(
+                  fractions => {
+                    ItemsStockRepository.findByItemId(id).flatMap(
+                      maybeStock => maybeStock match {
+                        case None =>
+                          DBIO.successful(Some(Product(item.id, item.sku, item.name, brand, tags,
+                            0, 0, None, 0, false, 0, false, 0, fractions)))
+                        case Some(stock) => {
+                          stock.tax match {
+                            case None =>
+                              DBIO.successful(Some(Product(item.id, item.sku, item.name, brand, tags,
+                                stock.cost, stock.price, None, stock.retailPrice, stock.trackStock, stock.stockCount, stock.alertLowStock, stock.alertStockLevel,
+                                fractions)))
+                            case Some(taxId) =>
+                              TaxesRepository.findById(taxId).map(tax => Some(Product(item.id, item.sku, item.name, brand, tags,
+                                stock.cost, stock.price, tax, stock.retailPrice, stock.trackStock, stock.stockCount, stock.alertLowStock, stock.alertStockLevel,
+                                fractions)))
+                          }
+                        }
+                      }
 
-      val stock = ItemsStockRepository.findByItemId(id).get
-      val tax = stock.tax.map(taxId => TaxesRepository.findById(taxId).get)
-
-      val itemFractions = FractionsRepository.findByItemId(id)
-
-      return Some(Product(item.id, item.sku, item.name, itemBrand, itemTags,
-        stock.cost, stock.price, tax, stock.retailPrice, stock.trackStock, stock.stockCount, stock.alertLowStock, stock.alertStockLevel,
-        itemFractions))
-
-    }
-
-    None
+                    )
+                  }
+                )
+              }
+            )
+          }
+        )
+      }
+    })
   }
 
-  def getBriefs(filter: Option[String], pageNumber: Int, pageSize: Int)(implicit session: Session): (Int, List[ProductBrief])  = {
-    val offset = if (pageNumber>0) (pageNumber - 1) * pageSize else 1*pageSize
 
-    val query = briefsQuery(filter)
+  def getBriefs(filter: Option[String], pageNumber: Int, pageSize: Int): DBIO[(Int, Seq[ProductBrief])] = {
+    val offset = if (pageNumber > 0) (pageNumber - 1) * pageSize else 1 * pageSize
 
-    val totalBriefs = Query(query.length).first
-    val partialBriefs = query.drop(offset).take(pageSize).list
+    val briefsQueryAction = briefsQuery(filter)
 
-    val briefs = partialBriefs.map{ case (itemId, itemName, sku, brandName, retailPrice, stockCount) => {
-      val tags = TagsRepository.getTagsForItem(itemId).map(_.name)
-      ProductBrief(itemId, itemName, sku, brandName, tags, retailPrice, stockCount)
-    }}
 
-    (totalBriefs, briefs)
+    val totalBriefs = briefsQueryAction.length.result
+    val partialBriefs = briefsQueryAction.drop(offset).take(pageSize).result
+
+    totalBriefs.flatMap(total => {
+      partialBriefs.flatMap(briefTuples => {
+        val getTagsActions = briefTuples.map { case (itemId, itemName, sku, brandName, retailPrice, stockCount) => {
+          TagsRepository.getTagsForItem(itemId).map(tags => ProductBrief(itemId, itemName, sku, brandName, tags.map(_.name), retailPrice, stockCount))
+        }
+        }
+
+        DBIO.sequence(getTagsActions)
+
+      }).map(briefs => (total, briefs))
+    })
   }
 
   private def briefsQuery(filter: Option[String]) = {
     (filter match {
       case None => {
         (for {
-          ((item, stock), brand) <- (itemsQuery innerJoin itemsStockQuery on (_.id === _.item)) leftJoin brandsQuery on (_._1.brand === _.id)
-        } yield (item.id, item.name, item.sku, brand.name.?, stock.retailPrice, stock.stockCount))
+          ((item, stock), brand) <- (itemsQuery join itemsStockQuery on (_.id === _.item)) joinLeft brandsQuery on (_._1.brand === _.id)
+        } yield (item.id, item.name, item.sku, brand.map(_.name), stock.retailPrice, stock.stockCount))
       }
 
       case Some(f) => {
         (for {
-          ((item, stock), brand) <- (itemsQuery innerJoin itemsStockQuery on (_.id === _.item)) leftJoin brandsQuery on (_._1.brand === _.id)
+          ((item, stock), brand) <- (itemsQuery join itemsStockQuery on (_.id === _.item)) joinLeft brandsQuery on (_._1.brand === _.id)
           if item.name.toLowerCase like s"%${f.toLowerCase()}%"
-        } yield (item.id, item.name, item.sku, brand.name.?, stock.retailPrice, stock.stockCount))
+        } yield (item.id, item.name, item.sku, brand.map(_.name), stock.retailPrice, stock.stockCount))
       }
     }).sortBy(_._2.asc)
   }
 
-  def save(p: Product)(implicit session: Session): ItemId = {
-    session.withTransaction {
-      val brandId = p.brand.fold[Option[BrandId]](None)(b => b.id)
-      val newItem: Item = Item(None, p.sku, p.name, brandId)
+  def save(p: Product): DBIO[ItemId] = {
+    val brandId = p.brand.fold[Option[BrandId]](None)(b => b.id)
+    val newItem: Item = Item(None, p.sku, p.name, brandId)
+    val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
 
-      val itemId = ItemsRepository.save(newItem)
+    val saveItemAction = ItemsRepository.save(newItem)
 
-      val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
+    saveItemAction.flatMap(itemId => {
       val itemStock = ItemStock(None, itemId, p.cost, p.price, taxId, p.retailPrice, p.trackStock, p.stockCount, p.alertLowStock, p.alertStockLevel)
 
-      p.tags.foreach(t => {
-        tagsForItemQuery insert (t.id.get -> itemId)
-      })
+      val tagItemTuples = p.tags.map(t => t.id.get -> itemId)
+      val fractions = p.fractions.map(fraction => fraction.copy(item = Some(itemId)))
 
-      p.fractions.foreach(f => {
-        FractionsRepository.save(f.copy(item = Some(itemId)))
-      })
+      val insertAllTagsAction = tagItemTuples.toIndexedSeq map tagsForItemQuery.+=
 
-      ItemsStockRepository.save(itemStock)
-
-      itemId
-    }
+      DBIO.sequence(insertAllTagsAction)
+        .andThen(FractionsRepository.saveAll(fractions))
+        .andThen(ItemsStockRepository.save(itemStock))
+        .andThen(DBIO.successful(itemId))
+    }).transactionally
   }
 
-  def update(p: Product)(implicit session: Session): ItemId = {
-    session.withTransaction {
-      val brandId = p.brand.fold[Option[BrandId]](None)(b => b.id)
-      val newItem: Item = Item(p.id, p.sku, p.name, brandId)
 
-      val itemId = ItemsRepository.save(newItem)
+  def update(p: Product): DBIO[ItemId] = {
+    val brandId = p.brand.fold[Option[BrandId]](None)(b => b.id)
+    val itemToUpdate: Item = Item(p.id, p.sku, p.name, brandId)
+    val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
 
-      val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
+    ItemsRepository.save(itemToUpdate).flatMap(itemId => {
       val itemStock = ItemStock(None, itemId, p.cost, p.price, taxId, p.retailPrice, p.trackStock, p.stockCount, p.alertLowStock, p.alertStockLevel)
-
-      val stock = for { s <- itemsStockQuery if s.item === newItem.id } yield  s
+      val stock = for {s <- itemsStockQuery if s.item === itemToUpdate.id} yield s
       stock.update(itemStock)
-
-
-      tagsForItemQuery.filter(_.item === newItem.id).delete
-
-      p.tags.foreach(t => {
-        tagsForItemQuery insert (t.id.get -> itemId)
-      })
-
-      p.fractions.foreach(f => {
-        FractionsRepository.save(f.copy(item = Some(itemId)))
-      })
-
-      itemId
-    }
+        .andThen(tagsForItemQuery.filter(_.item === itemToUpdate.id).delete)
+        .andThen(tagsForItemQuery ++= p.tags.map(t => (t.id.get -> itemId)))
+        .andThen(FractionsRepository.saveAll(p.fractions.map(f => f.copy(item = Some(itemId)))))
+        .andThen(DBIO.successful(itemId))
+    }).transactionally
   }
 }

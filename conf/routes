@@ -27,7 +27,7 @@ GET         /products/tags               controllers.products.Products.tags
 POST        /products/tag                controllers.products.Products.addTag
 GET         /products/taxes              controllers.products.Products.taxes
 POST        /products/tax                controllers.products.Products.addTax
-
+#
 GET         /sell/list                   controllers.sell.PointOfSale.getListedProducts(q: String)
 
 

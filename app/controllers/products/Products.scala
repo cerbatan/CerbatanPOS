@@ -1,19 +1,27 @@
 package controllers.products
 
+import javax.inject.Inject
+
+import common.format.products._
 import controllers.AuthConfiguration
 import jp.t2v.lab.play2.auth.AuthElement
 import models.Product
 import models.Role.{Administrator, Seller}
-import models.db.{ItemId, Tax, Tag, Brand}
+import models.db.{Brand, ItemId, Tag, Tax}
 import org.h2.jdbc.JdbcSQLException
-import play.api.Play.current
 import play.api.db.slick._
 import play.api.libs.json._
-import play.api.mvc.{BodyParsers, Controller}
-import repositories.{ProductsRepository, TaxesRepository, BrandsRepository, TagsRepository}
-import common.format.products._
+import play.api.mvc.{BodyParsers, Controller, Result}
+import repositories._
+import slick.dbio.DBIO
 
-object Products extends Controller with AuthElement with AuthConfiguration {
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+class Products @Inject()(val dbConfigProvider: DatabaseConfigProvider,
+                         val systemUsers: SystemUserRepository,
+                         val productsRepository: ProductsRepository) extends Controller with AuthElement with AuthConfiguration {
+
   def products = StackAction(AuthorityKey -> Seller) { implicit request =>
     val user = loggedIn
     Ok(views.html.products.products())
@@ -36,141 +44,116 @@ object Products extends Controller with AuthElement with AuthConfiguration {
     Ok(views.html.products.productDetails())
   }
 
-  def saveProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val user = loggedIn
-      operateProduct(request.body, ProductsRepository.save)
-    }
+  def saveProduct = AsyncStack(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    val user = loggedIn
+    operateProduct(request.body, productsRepository.save)
   }
 
-  def updateProduct = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val user = loggedIn
-      operateProduct(request.body, ProductsRepository.update)
-    }
+  def updateProduct = AsyncStack(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    val user = loggedIn
+    operateProduct(request.body, productsRepository.update)
   }
 
-  private def operateProduct(body: JsValue, op: (Product) => ItemId) = {
+  private def operateProduct(body: JsValue, op: (Product) => DBIO[ItemId]): Future[Result] = {
     val product = body.validate[Product]
     product.fold(
       error => {
-        BadRequest
+        Future.successful(BadRequest)
       },
       product => {
-        try {
-          val id = op(product)
-          Ok(Json.toJson(id))
-        } catch {
+        db.run(op(product)).map(itemId => Ok(Json.toJson(itemId))).recover({
           case e: JdbcSQLException => Conflict
           case e: Exception => InternalServerError
-        }
-
+        })
       }
     )
   }
 
-  def getProduct(id: Long) = StackAction(AuthorityKey -> Seller) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val itemId = ItemId(id)
-      val product: Option[Product] = ProductsRepository.findById(itemId)
-
-      Ok(Json.toJson(product))
-    }
+  def getProduct(id: Long) = AsyncStack(AuthorityKey -> Seller) { implicit request =>
+    val itemId = ItemId(id)
+    db.run(productsRepository.findById(itemId).map(product => Ok(Json.toJson(product))))
   }
 
-  def getProductsBrief(filter: Option[String], page: Option[Int]) = StackAction(AuthorityKey -> Seller) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val briefs = ProductsRepository.getBriefs(filter, page.getOrElse(1), 8)
-      Ok(Json.toJson(briefs))
-    }
+  def getProductsBrief(filter: Option[String], page: Option[Int]) = AsyncStack(AuthorityKey -> Seller) { implicit request =>
+    val getBriefsAction = productsRepository.getBriefs(filter, page.getOrElse(1), 8)
+
+    db.run(getBriefsAction).map(briefsResult => Ok(Json.toJson(briefsResult)))
   }
 
-  def brands(query: Option[String]) = StackAction(AuthorityKey -> Seller) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val brands = query match {
-        case None =>
-          BrandsRepository.findAll()
-        case Some(search) =>
-          BrandsRepository.filter(search)
+  def brands(query: Option[String]) = AsyncStack(AuthorityKey -> Seller) { implicit request =>
+    val brandsQueryAction = query match {
+      case None =>
+        BrandsRepository.findAll()
+      case Some(search) =>
+        BrandsRepository.filter(search)
+    }
+
+    db.run(brandsQueryAction.map(brands => Ok(Json.toJson(brands))))
+  }
+
+  def addBrand = AsyncStack(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    val nameResult = request.body.\("name").validate[String]
+
+    nameResult.fold(
+      error => {
+        Future.successful(BadRequest)
+      },
+      name => {
+        val fetchOrSaveBrandAction = BrandsRepository.findByName(name).flatMap(maybeBrand => maybeBrand match {
+          case None =>
+            BrandsRepository.save(Brand(None, name)).map(id => Brand(Some(id), name))
+          case Some(brand) =>
+            DBIO.successful(brand)
+        })
+
+        db.run(fetchOrSaveBrandAction.map(brand => Ok(Json.toJson(brand))))
       }
-
-      Ok(Json.toJson(brands))
-    }
+    )
   }
 
-  def addBrand = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val nameResult = request.body.\("name").validate[String]
-
-      nameResult.fold(
-        error => {
-          BadRequest
-        },
-        name => {
-          BrandsRepository.findByName(name) match {
-            case None =>
-              val id = BrandsRepository.save(Brand(None, name))
-              Ok(Json.toJson(Brand(Some(id), name)))
-            case Some(brand) =>
-              Ok(Json.toJson(brand))
-          }
-        }
-      )
-    }
-  }
-
-  def tags = StackAction(AuthorityKey -> Seller) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val tags = TagsRepository.findAll()
-
-      Ok(Json.toJson(tags))
-    }
+  def tags = AsyncStack(AuthorityKey -> Seller) { implicit request =>
+    db.run(TagsRepository.findAll().map(tags => Ok(Json.toJson(tags))))
   }
 
 
-  def addTag = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val nameResult = request.body.\("name").validate[String]
+  def addTag = AsyncStack(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    val nameResult = request.body.\("name").validate[String]
 
-      nameResult.fold(
-        error => {
-          BadRequest
-        },
-        name => {
-          TagsRepository.findByName(name) match {
-            case None =>
-              val id = TagsRepository.save(Tag(None, name))
-              Ok(Json.toJson(Tag(Some(id), name)))
-            case Some(tag) =>
-              Ok(Json.toJson(tag))
-          }
-        }
-      )
-    }
+    nameResult.fold(
+      error => {
+        Future.successful(BadRequest)
+      },
+      name => {
+        val saveOrFetchTag: DBIO[Tag] = TagsRepository.findByName(name).flatMap(maybeTag => maybeTag match {
+          case None =>
+            TagsRepository.save(Tag(None, name)).map(tagId => Tag(Some(tagId), name))
+          case Some(tag) =>
+            DBIO.successful(tag)
+        })
+
+        db.run(saveOrFetchTag.map(tag => Ok(Json.toJson(tag))))
+      }
+    )
   }
 
-  def taxes = StackAction(AuthorityKey -> Seller) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val tags = TaxesRepository.findAll()
-
-      Ok(Json.toJson(tags))
-    }
+  def taxes = AsyncStack(AuthorityKey -> Seller) { implicit request =>
+    db.run(TaxesRepository.findAll()).map(t => Ok(Json.toJson(t)))
   }
 
-  def addTax = StackAction(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
-    DB.withSession { implicit session: Session =>
-      val newTax = request.body.validate[Tax]
 
-      newTax.fold(
-        error => {
-          BadRequest
-        },
-        tax => {
-          val id = TaxesRepository.save(tax)
-          Ok(Json.toJson(tax.copy(id = Some(id))))
-        }
-      )
-    }
+  def addTax = AsyncStack(BodyParsers.parse.json, AuthorityKey -> Administrator) { implicit request =>
+    val newTax = request.body.validate[Tax]
+
+    newTax.fold(
+      error => {
+        Future.successful(BadRequest)
+      },
+      tax => {
+        val addTaxAction = TaxesRepository.save(tax).map(id => tax.copy(id = Some(id)))
+
+        db.run(addTaxAction).map(addedTax => Ok(Json.toJson(addedTax)))
+      }
+    )
   }
 
 }

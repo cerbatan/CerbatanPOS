@@ -3,11 +3,8 @@ package models.db
 import _root_.models.Role
 import _root_.models.Role.Guest
 import org.virtuslab.unicorn.LongUnicornPlay._
-import org.virtuslab.unicorn.LongUnicornPlay.driver.simple._
-
-
-import scala.slick.lifted.ProvenShape
-import scala.slick.lifted
+import org.virtuslab.unicorn.LongUnicornPlay.driver.api._
+import slick.lifted.{ProvenShape, Tag => SlickTag}
 
 case class SystemUserId(id: Long) extends AnyVal with BaseId
 
@@ -20,10 +17,10 @@ case class SystemUser(id: Option[SystemUserId],
                       email: String,
                       password: String,
                       fullName: Option[String]
-                      ) extends WithId[SystemUserId]
+                       ) extends WithId[SystemUserId]
 
 
-class SystemUsers(tag: lifted.Tag) extends IdTable[SystemUserId, SystemUser](tag, "SYSTEM_USERS") {
+class SystemUsers(tag: SlickTag) extends IdTable[SystemUserId, SystemUser](tag, "SYSTEM_USERS") {
   implicit def string2Role = MappedColumnType.base[Role, String](
     role => role.toString,
     string => Role.valueOf(string)

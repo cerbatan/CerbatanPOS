@@ -1,22 +1,24 @@
 package controllers
 
-import jp.t2v.lab.play2.auth.{TransparentIdContainer,  AsyncIdContainer, AuthConfig}
+import jp.t2v.lab.play2.auth._
 import models.Role
 import models.Role._
-import models.db.{SystemUserId, SystemUser}
+import models.db.{SystemUser, SystemUserId}
+import org.mindrot.jbcrypt.BCrypt
+import play.Logger
+import play.api.db.slick.HasDatabaseConfigProvider
 import play.api.mvc.RequestHeader
 import play.api.mvc.Results._
 import repositories.SystemUserRepository
-import scala.concurrent.{Future, ExecutionContext}
-import play.api.db.slick.Config.driver.simple._
-import play.api.db.slick.DB
+import slick.driver.JdbcProfile
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect._
-import play.Logger
-import play.api.Play.current
 
+trait AuthConfiguration extends AuthConfig with HasDatabaseConfigProvider[JdbcProfile] {
+  val systemUsers: SystemUserRepository
 
-trait AuthConfiguration extends AuthConfig {
   type Id = Long
 
   type User = SystemUser
@@ -26,11 +28,8 @@ trait AuthConfiguration extends AuthConfig {
   val idTag: ClassTag[Id] = classTag[Id]
   val sessionTimeoutInSeconds = 3600
 
-  def resolveUser(id: Id)(implicit ctx: ExecutionContext) = Future.successful(
-    DB.withSession { implicit session: Session =>
-      SystemUserRepository.findById(SystemUserId(id))
-    }
-  )
+  def resolveUser(id: Id)(implicit ctx: ExecutionContext) = db.run(systemUsers.findById(SystemUserId(id)))
+
 
   def authorizationFailed(request: RequestHeader)(implicit ctx: ExecutionContext) = throw new AssertionError("don't use")
 
@@ -55,5 +54,24 @@ trait AuthConfiguration extends AuthConfig {
   def logoutSucceeded(request: RequestHeader)(implicit ctx: ExecutionContext) = Future.successful(Redirect(routes.MainController.login))
 
   def authenticationFailed(request: RequestHeader)(implicit ctx: ExecutionContext) = Future.successful(Redirect(routes.MainController.login))
+
+  def authenticateCredentials(email: String, password: String): Future[Option[SystemUser]] = {
+    val user = systemUsers.findByEmail(email)
+
+    db.run(user).flatMap[Option[SystemUser]](maybeUser =>{
+      maybeUser match {
+        case None =>
+          if ( email == "admin@cerbatan.com" ){
+            val adminUser = SystemUser(None, Owner, "admin@cerbatan.com", BCrypt.hashpw(password, BCrypt.gensalt()), Some("Admin"))
+            db.run(systemUsers.save(adminUser).flatMap(uid => systemUsers.findById(uid)))
+
+          } else {
+            Future.successful(None)
+          }
+        case Some(user) =>
+          if ( BCrypt.checkpw(password, user.password) ) Future.successful(Some(user)) else Future.successful(None)
+      }
+    })
+  }
 }
 
