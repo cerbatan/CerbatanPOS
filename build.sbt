@@ -9,8 +9,8 @@ scalaVersion := "2.11.7"
 libraryDependencies ++= Seq(
   ws,
   specs2 % Test,
-  "com.typesafe.play" %% "play-slick" % "1.1.0",
-  "com.typesafe.play" %% "play-slick-evolutions" % "1.1.0",
+  "com.typesafe.play" %% "play-slick" % "1.1.1",
+  "com.typesafe.play" %% "play-slick-evolutions" % "1.1.1",
   "org.virtuslab" %% "unicorn-play" % "1.0.0",
   "com.h2database" % "h2" % "1.4.190",
   "jp.t2v" %% "play2-auth" % "0.14.1",
