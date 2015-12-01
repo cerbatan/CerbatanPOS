@@ -147,9 +147,10 @@ class ProductsRepository {
     val taxId = p.tax.fold[Option[TaxId]](None)(t => t.id)
 
     ItemsRepository.save(itemToUpdate).flatMap(itemId => {
-      val itemStock = ItemStock(None, itemId, p.cost, p.price, taxId, p.retailPrice, p.trackStock, p.stockCount, p.alertLowStock, p.alertStockLevel)
-      val stock = for {s <- itemsStockQuery if s.item === itemToUpdate.id} yield s
-      stock.update(itemStock)
+      val updatedItemStock = (itemId, p.cost, p.price, taxId, p.retailPrice, p.trackStock, p.stockCount, p.alertLowStock, p.alertStockLevel)
+      val stock = for {s <- itemsStockQuery if s.item === itemToUpdate.id} yield (s.item, s.cost, s.price, s.tax, s.retailPrice, s.trackStock, s.stockCount, s.alertLowStock, s.alertStockLevel)
+
+      stock.update(updatedItemStock)
         .andThen(tagsForItemQuery.filter(_.item === itemToUpdate.id).delete)
         .andThen(tagsForItemQuery ++= p.tags.map(t => (t.id.get -> itemId)))
         .andThen(FractionsRepository.saveAll(p.fractions.map(f => f.copy(item = Some(itemId)))))

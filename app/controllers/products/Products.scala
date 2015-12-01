@@ -1,5 +1,6 @@
 package controllers.products
 
+import java.sql.SQLException
 import javax.inject.Inject
 
 import common.format.products._
@@ -8,7 +9,6 @@ import jp.t2v.lab.play2.auth.AuthElement
 import models.Product
 import models.Role.{Administrator, Seller}
 import models.db.{Brand, ItemId, Tag, Tax}
-import org.h2.jdbc.JdbcSQLException
 import play.api.db.slick._
 import play.api.libs.json._
 import play.api.mvc.{BodyParsers, Controller, Result}
@@ -62,7 +62,7 @@ class Products @Inject()(val dbConfigProvider: DatabaseConfigProvider,
       },
       product => {
         db.run(op(product)).map(itemId => Ok(Json.toJson(itemId))).recover({
-          case e: JdbcSQLException => Conflict
+          case e: SQLException => Conflict
           case e: Exception => InternalServerError
         })
       }

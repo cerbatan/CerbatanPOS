@@ -10,7 +10,7 @@ case class SoldItemId(id: Long) extends AnyVal with BaseId
 
 object SoldItemId extends IdCompanion[SoldItemId]
 
-case class SoldItem(id: Option[SoldItemId], sale: SaleId, itemId: ItemId, fractionId: Option[FractionId], count: Int, soldPrice: Float, taxed: Float, cost: Float) extends WithId[SoldItemId]
+case class SoldItem(id: Option[SoldItemId], sale: SaleId, itemId: ItemId, fractionId: Option[FractionId], count: Int, soldPrice: Double, taxed: Double, cost: Double) extends WithId[SoldItemId]
 
 class SoldItems(tag: SlickTag) extends IdTable[SoldItemId, SoldItem](tag, "sold_items") {
   override def * = (id.?, sale, itemId, fractionId, count, soldPrice, taxed, cost) <>(SoldItem.tupled, SoldItem.unapply)
@@ -23,11 +23,11 @@ class SoldItems(tag: SlickTag) extends IdTable[SoldItemId, SoldItem](tag, "sold_
 
   def count = column[Int]("count")
 
-  def soldPrice = column[Float]("sold_price")
+  def soldPrice = column[Double]("sold_price")
 
-  def taxed = column[Float]("taxed")
+  def taxed = column[Double]("taxed")
 
-  def cost = column[Float]("cost")
+  def cost = column[Double]("cost")
 
   def itemIdIdx = index("idx_sold_item_id", itemId, unique = false)
 

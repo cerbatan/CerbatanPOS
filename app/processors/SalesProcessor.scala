@@ -1,5 +1,6 @@
 package processors
 
+import com.google.inject.ImplementedBy
 import models.SaleDetails
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
@@ -20,6 +21,7 @@ trait SalesProcessorResponse {
   def invoiceId: Option[Long]
 }
 
+@ImplementedBy(classOf[SimpleSalesProcessor])
 trait SalesProcessor {
   def receive(saleDetails: SaleDetails)(implicit dbConfig: DatabaseConfig[JdbcProfile]): Future[SalesProcessorResponse]
 }

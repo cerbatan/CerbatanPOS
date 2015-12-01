@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick" % "1.1.1",
   "com.typesafe.play" %% "play-slick-evolutions" % "1.1.1",
   "org.virtuslab" %% "unicorn-play" % "1.0.0",
-  "com.h2database" % "h2" % "1.4.190",
+  "org.postgresql" % "postgresql" % "9.4-1206-jdbc42",
   "jp.t2v" %% "play2-auth" % "0.14.1",
   "jp.t2v" %% "play2-auth-test" % "0.14.1" % "test",
   "org.mindrot" % "jbcrypt" % "0.3m",

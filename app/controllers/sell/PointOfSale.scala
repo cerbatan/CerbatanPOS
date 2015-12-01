@@ -10,7 +10,8 @@ import models.SaleDetails
 import play.api.db.slick._
 import play.api.libs.json.Json
 import play.api.mvc.{BodyParsers, Controller}
-import repositories.{ProductsRepository, SystemUserRepository}
+import processors.SalesProcessor
+import repositories.{SalesRepository, ProductsRepository, SystemUserRepository}
 import common.format.sale._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,7 +19,8 @@ import scala.concurrent.Future
 
 class PointOfSale @Inject()(val dbConfigProvider: DatabaseConfigProvider,
                             val systemUsers: SystemUserRepository,
-                            val productsRepository: ProductsRepository) extends Controller with AuthElement with AuthConfiguration {
+                            val productsRepository: ProductsRepository,
+                            val salesProcessor: SalesProcessor) extends Controller with AuthElement with AuthConfiguration {
 
   def getListedProducts(query: String) = AsyncStack(AuthorityKey -> Seller) { implicit request =>
     val productsDBAction = productsRepository.getListedProducts(query)
@@ -33,7 +35,7 @@ class PointOfSale @Inject()(val dbConfigProvider: DatabaseConfigProvider,
         Future.successful(BadRequest)
       },
       saleDetails => {
-
+        salesProcessor.receive(saleDetails)(dbConfig).map( r => Ok(Json.toJson(r)) )
       })
 
     Future.successful(NotImplemented)

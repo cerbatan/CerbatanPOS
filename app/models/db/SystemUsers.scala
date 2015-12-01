@@ -20,7 +20,7 @@ case class SystemUser(id: Option[SystemUserId],
                        ) extends WithId[SystemUserId]
 
 
-class SystemUsers(tag: SlickTag) extends IdTable[SystemUserId, SystemUser](tag, "SYSTEM_USERS") {
+class SystemUsers(tag: SlickTag) extends IdTable[SystemUserId, SystemUser](tag, "system_users") {
   implicit def string2Role = MappedColumnType.base[Role, String](
     role => role.toString,
     string => Role.valueOf(string)
