@@ -40,7 +40,8 @@ class Application @Inject()(val dbConfigProvider: DatabaseConfigProvider, val sy
         controllers.products.routes.javascript.Products.updateProduct,
         controllers.products.routes.javascript.Products.getProduct,
         controllers.products.routes.javascript.Products.getProductsBrief,
-        controllers.sell.routes.javascript.PointOfSale.getListedProducts
+        controllers.sell.routes.javascript.PointOfSale.getListedProducts,
+        controllers.sell.routes.javascript.PointOfSale.registerSale
       )
     ).as(JAVASCRIPT)
   }

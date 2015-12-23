@@ -44,7 +44,7 @@ package object sale {
 
   implicit object salesProcessorResponseWrites extends Writes[SalesProcessorResponse] {
     override def writes(o: SalesProcessorResponse): JsValue = o match {
-      case r : SimpleSalesProcessorResponse => Json.toJson(r)
+      case r : SimpleSalesProcessorResponse => Json.toJson(r)(simpleSalesProcessorResponseWrites)
       case x => throw new RuntimeException(s"Unknown SalesProcessorResponse: $x")
     }
   }

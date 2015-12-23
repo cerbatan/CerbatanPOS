@@ -139,6 +139,11 @@ define(['./module']
           showRegisterPaymentDialog(list.totalPrice()).result.then(
             (paymentDescription) =>
               $log.info 'Payment Registered'
+
+              backend.register({items: list.getListBrief(), details: paymentDescription}).then(
+                (response) ->
+                  $log.info response.data
+              )
             ->
               $log.info 'Payment Cancelled'
           )

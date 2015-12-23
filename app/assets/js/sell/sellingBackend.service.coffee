@@ -10,6 +10,9 @@ define(['./module']
           getProduct: (productId) ->
             playRoutes.controllers.products.Products.getProduct(productId).get()
 
+          register: (sale) ->
+            playRoutes.controllers.sell.PointOfSale.registerSale().post(sale)
+
 #          flushTagsCache: ->
 #            $cacheFactory.get('$http').remove playRoutes.controllers.products.Products.tags().url
         }

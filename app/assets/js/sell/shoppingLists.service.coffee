@@ -13,10 +13,12 @@ define(['./module']
             @retailPrice = product.fractions[0].price
             @fractionName = product.fractions[0].name
             @fractionId = product.fractions[0].id
+            @cost = product.cost/product.fractions[0].qty
           else
             @retailPrice = @listedRetailPrice()
             @fractionName = null
             @fractionId = null
+            @cost = product.cost
 
         price : () -> @retailPrice / (1 + @listedTax() / 100)
 
@@ -39,6 +41,9 @@ define(['./module']
             false
 
 
+      class SoldItemBrief
+        constructor: (@item, @fraction, @count, @price, @taxes, @cost) ->
+
       class ShoppingList
         productsList = []
 
@@ -56,6 +61,9 @@ define(['./module']
 
         totalPrice: () ->
           productsList.reduce ((t, c) -> t + c.count * c.retailPrice), 0
+
+        getListBrief: () ->
+          productsList.map( (item) ->  new SoldItemBrief(item.id, item.fractionId, item.count, item.price(), item.taxes(), item.cost ) )
 
         insert: (p) ->
           updated = false
@@ -85,6 +93,7 @@ define(['./module']
 
         return {
         currentShoppingList: getCurrent
+
 
 #          flushTagsCache: ->
 #            $cacheFactory.get('$http').remove playRoutes.controllers.products.Products.tags().url

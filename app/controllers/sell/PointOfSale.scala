@@ -38,6 +38,6 @@ class PointOfSale @Inject()(val dbConfigProvider: DatabaseConfigProvider,
         salesProcessor.receive(saleDetails)(dbConfig).map( r => Ok(Json.toJson(r)) )
       })
 
-    Future.successful(NotImplemented)
+//    Future.successful(NotImplemented)
   }
 }

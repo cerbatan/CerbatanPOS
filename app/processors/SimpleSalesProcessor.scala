@@ -28,8 +28,6 @@ class SimpleSalesProcessor extends SalesProcessor {
       }
       case error => Future.successful(SimpleSalesProcessorResponse(status, errorDescription, None))
     }
-
-    Future.successful(SimpleSalesProcessorResponse(Success, None, None))
   }
 
   //Validate items may be used to check stock before saving
@@ -52,10 +50,16 @@ class SimpleSalesProcessor extends SalesProcessor {
       }
     }
 
-    def updateItemStok( soldItem: SoldItem ): DBIO[Int] =
-      sqlu"UPDATE items_stock SET stock_count=stock_count + ${soldItem.count} WHERE id=soldItem.itemId.id"
+    def updateItemStock( soldItem: SoldItem ): DBIO[Int] ={
+      soldItem.fractionId match {
+        case None =>
+          sqlu"UPDATE items_stock SET stock_count=stock_count - ${soldItem.count} WHERE id=${soldItem.itemId.id};"
+        case Some(fractionId) =>
+          sqlu"UPDATE items_stock SET stock_count=(stock_count - (SELECT CAST(${soldItem.count} AS NUMERIC(10,2))/qty_in_pack FROM fractions WHERE id=${fractionId.id})) WHERE id=${soldItem.itemId.id};"
+      }
+    }
 
-    val updateStockAction = DBIOAction.sequence(saleDetails.items.map( updateItemStok ))
+    val updateStockAction = DBIOAction.sequence(saleDetails.items.map( updateItemStock ))
 
     val updateStockAndSaveSale = updateStockAction.andThen( saveSalesAction ).transactionally
 

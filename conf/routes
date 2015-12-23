@@ -29,6 +29,7 @@ GET         /products/taxes              controllers.products.Products.taxes
 POST        /products/tax                controllers.products.Products.addTax
 #
 GET         /sell/list                   controllers.sell.PointOfSale.getListedProducts(q: String)
+POST        /sell/register               controllers.sell.PointOfSale.registerSale
 
 
 # Map static resources from the /public folder to the /assets URL path
