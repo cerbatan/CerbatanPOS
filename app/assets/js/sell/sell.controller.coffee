@@ -142,6 +142,7 @@ define(['./module']
 
               backend.register({items: list.getListBrief(), details: paymentDescription}).then(
                 (response) ->
+                  shoppingListsService.clearCurrentShoppingList()
                   $log.info response.data
               )
             ->

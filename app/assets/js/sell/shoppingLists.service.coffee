@@ -89,10 +89,14 @@ define(['./module']
         getCurrent = () =>
           @currentList
 
+        cleanCurrent = () =>
+          @currentList = new ShoppingList()
+
         init()
 
         return {
         currentShoppingList: getCurrent
+        clearCurrentShoppingList: cleanCurrent
 
 
 #          flushTagsCache: ->

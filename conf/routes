@@ -17,6 +17,8 @@ GET         /views/product/new           controllers.products.Products.newProduc
 GET         /views/product/edit          controllers.products.Products.newProduct
 GET         /views/product/detail        controllers.products.Products.productDetail
 
+GET         /views/stock-control        controllers.stock.StockControl.stockControl
+
 POST        /product                     controllers.products.Products.saveProduct
 PUT         /product                     controllers.products.Products.updateProduct
 GET         /product/:id                 controllers.products.Products.getProduct(id: Long)
