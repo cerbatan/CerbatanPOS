@@ -16,6 +16,7 @@ require(
     'localize'
     'products/index'
     'sell/index'
+    'stock/index'
     'task/task'
   ]
   (domReady, ng) ->

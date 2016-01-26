@@ -2,16 +2,20 @@
     <div class="panel panel-default c-panel-products">
         <div class="panel-body">
             <div class="row">
-                <div class="col-sm-4 col-xs-6">
+                <div class="col-sm-4">
                     <div class="input-group">
-                        <input type="text" class="form-control" i18n="i18n-placeholder" placeholder="Search for product...">
+                        <input type="text" class="form-control" i18n="i18n-placeholder" placeholder="Search order...">
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
                     </div>
                 </div>
-                <div class="col-sm-7 col-md-offset-1 col-xs-6">
-                    <button class="btn btn-w-sm btn-sm btn-gap-v btn-round btn-info pull-right" ng-click="ctrl.goToAddProduct()"><span class="glyphicon glyphicon-plus"></span> <span data-i18n="Add"></span></button>
+                <div class="col-sm-7 col-md-offset-1">
+                    <div class="pull-right">
+                        <button class="btn btn-w-sm btn-md btn-gap-v btn-round btn-default" ng-click="ctrl.goToReceiveOrder()"><span class="fa fa-truck"></span> <span data-i18n="Receive Order"></span></button>
+                        <button class="btn btn-w-sm btn-md btn-gap-v btn-round btn-default" ng-click="ctrl.goToAddProduct()"><span class="fa fa-reply"></span> <span data-i18n="Retrun Stock"></span></button>
+                        <button class="btn btn-w-sm btn-md btn-gap-v btn-round btn-default" ng-click="ctrl.goToAddProduct()"><span class="fa fa-check-circle-o"></span> <span data-i18n="Count Stock"></span></button>
+                    </div>
                 </div>
             </div>
             <div class="divider"></div>
@@ -21,31 +25,15 @@
                         <table class="table">
                             <thead >
                                 <tr>
-                                    <th>Product</th>
-                                    <th class="hidden-xs">Brand & Tags</th>
-                                    <th class="numeric">Price</th>
-                                    <th class="numeric">Count</th>
+                                    <th i18n="Id"></th>
+                                    <th class="" i18n="Status"></th>
+                                    <th class="" i18n="Date"></th>
+                                    <th class="hidden-xs" i18n="Supplier"></th>
+                                    <th class="" i18n="Invoice"></th>
+                                    <th class="numeric hidden-xs" i18n="Cost"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="product in ctrl.products track by product.id" class="c-row-no-padding">
-                                    <td class="text-left c-half-cell-vertical-padding">
-                                        <p class="c-margin-bottom-xxs">
-                                            <a href ng-click="ctrl.showProduct(product.id)">{{product.name}}</a>
-                                        </p>
-                                        <small>SKU: {{product.sku}}</small>
-                                    </td>
-                                    <td class="hidden-xs c-half-cell-vertical-padding">
-                                        <p class="c-margin-bottom-xxs" ng-if="product.brand!=null">{{product.brand}}</p>
-                                        <p class="c-margin-bottom-xxs" ng-if="product.brand==null" i18n="No Brand"></p>
-                                        <span ng-repeat="tag in product.tags">
-                                            <span class="label label-success">{{tag}}</span>
-                                            <div class="small-space"></div>
-                                        </span>
-                                    </td>
-                                    <td class="numeric c-half-cell-vertical-padding">{{product.retailPrice}}</td>
-                                    <td class="numeric c-half-cell-vertical-padding">{{product.stockCount}}</td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>

@@ -1,0 +1,92 @@
+<section class="page">
+    <div class="panel panel-default c-panel-products">
+        @*<div class="panel-heading">
+            <strong><span i18n="Order"></span></strong>
+            <div class="pull-right">
+                <button type="button" class="btn btn-info btn-w-xs btn-xs btn-gap-v btn-round" ng-click="ctrl.edit()"><span class="glyphicon glyphicon-edit"></span> <span data-i18n="Edit"></span></button>
+                <button type="button" class="btn btn-danger btn-w-xs btn-xs btn-gap-v btn-round"><span class="glyphicon glyphicon-remove"></span> <span data-i18n="Remove"></span></button>
+            </div>
+        </div>*@
+        <div class="panel-body">
+            <form>
+                <div class="row">
+                    <div class="col-md-3 col-xs-4">
+                        <div class="form-group form-group-sm">
+                                <label for="orderId" class="control-label" i18n="Order Id"></label>
+                                <input type="text" class="form-control" id="orderId"
+                                i18n="i18n-placeholder" placeholder="Order ID" autofocus>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-xs-4">
+                        <div class="form-group form-group-sm">
+                            <label for="supplier" class="control-label" i18n="Supplier"></label>
+                            <input type="text" class="form-control" id="invoice"
+                            i18n="i18n-placeholder" placeholder="Supplier" autofocus>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-xs-4">
+                        <div class="form-group form-group-sm">
+                            <label for="invoice" class="control-label" i18n="Invoice"></label>
+                            <input type="text" class="form-control" id="invoice"
+                            i18n="i18n-placeholder" placeholder="Invoice" autofocus>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-xs-4">
+                        <div class="pull-right form-group form-group-sm">
+                            <label for="invoice" class="control-label"></label>
+                            <div class="form-control no-border">
+                                <div class="btn-group" uib-dropdown is-open="status.isopen2">
+                                    <button type="button" class="btn btn-sm btn-default" id="single-button" ><span class="fa fa-plus"></span> <span data-i18n="Add Item"></span></button>
+                                    <button type="button" class="btn btn-sm btn-default" uib-dropdown-toggle>
+                                        <span class="fa fa-ellipsis-v"></span>
+                                        <span class="sr-only">Actions!</span>
+                                    </button>
+                                    <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="single-button">
+                                        <li><a href="javascript:;">Save</a></li>
+                                        <li><a href="javascript:;">Discard</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="javascript:;">Receive</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="divider"></div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive panel panel-default">
+                        <table class="table">
+                            <thead >
+                                <tr>
+                                    <th i18n="Product"></th>
+                                    <th class="hidden-xs" i18n="In Stock"></th>
+                                    <th class="" i18n="Qty"></th>
+                                    <th class="" i18n="Cost"></th>
+                                    <th class="" i18n="Total"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div ng-if="ctrl.totalProducts">
+                        <uib-pagination total-items="ctrl.totalProducts"
+                        ng-model="ctrl.currentPage"
+                        items-per-page="8"
+                        max-size="5"
+                        class="pagination-sm pull-right no-margin"
+                        boundary-links="true"
+                        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
+                        num-pages="numPages" ng-hide="numPages<=1"
+                        ng-change="ctrl.pageChange()"
+                        ></uib-pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>

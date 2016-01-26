@@ -57,10 +57,15 @@ define(['./module', 'angular']
                 productsService.getProduct($route.current.params.id)
             ]
 
-        .when '/products/stock-control',
+        .when '/stock-control/order/receive',
+          templateUrl: 'views/order/receive'
+          controller: 'StockCtrl'
+          controllerAs: 'ctrl'
+
+        .when '/stock-control',
           templateUrl: 'views/stock-control'
-#          controller: 'ProductsCtrl'
-#          controllerAs: 'ctrl'
+          controller: 'StockCtrl'
+          controllerAs: 'ctrl'
 
         .when '/404',
             templateUrl: 'views/pages/404.html'

@@ -18,6 +18,7 @@ GET         /views/product/edit          controllers.products.Products.newProduc
 GET         /views/product/detail        controllers.products.Products.productDetail
 
 GET         /views/stock-control        controllers.stock.StockControl.stockControl
+GET         /views/order/receive        controllers.stock.StockControl.receiveOrder
 
 POST        /product                     controllers.products.Products.saveProduct
 PUT         /product                     controllers.products.Products.updateProduct

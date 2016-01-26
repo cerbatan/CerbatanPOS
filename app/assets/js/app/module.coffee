@@ -12,5 +12,6 @@ define(['angular']
         'app.task'
         'app.sell'
         'app.products'
+        'app.stock'
       ]
 )
