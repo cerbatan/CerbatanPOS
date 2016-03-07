@@ -38,8 +38,6 @@
                   "angular-tags-input": '@routes.WebJarAssets.at(WebJarAssets.locate("ng-tags-input.min.js").dropRight(3))',
                   "angular-ui-select": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-ui-select", "select.min.js").dropRight(3))',
                   "angular-toastr": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-toastr.tpls.min.js").dropRight(3))',
-                  "angular-strap-compat": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-strap.compat.min.js").dropRight(3))',
-                  "angular-strap-tpl": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-strap.tpl.min.js").dropRight(3))'
                 },
                 shim: {
                   "jsRoutes": { deps: [], exports: 'jsRoutes' },
@@ -47,8 +45,6 @@
                   "angular-tags-input": { deps: ['angular'] },
                   "angular-ui-select": { deps: ['angular'] },
                   "angular-toastr": { deps: ['angular', 'angular-animate'] },
-                  "angular-strap-compat": { deps: ['angular'] },
-                  "angular-strap-tpl": { deps: ['angular', 'angular-animate', 'angular-strap-compat'] }
                 }
               });
             }

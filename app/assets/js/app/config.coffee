@@ -59,7 +59,7 @@ define(['./module', 'angular']
 
         .when '/stock-control/order/receive',
           templateUrl: 'views/order/receive'
-          controller: 'StockCtrl'
+          controller: 'ReceiveOrderCtrl'
           controllerAs: 'ctrl'
 
         .when '/stock-control',

@@ -112,7 +112,7 @@ class ProductsRepository {
       case Some(f) => {
         (for {
           ((item, stock), brand) <- (itemsQuery join itemsStockQuery on (_.id === _.item)) joinLeft brandsQuery on (_._1.brand === _.id)
-          if item.name.toLowerCase like s"%${f.toLowerCase()}%"
+          if ( (item.name.toLowerCase like s"%${f.toLowerCase()}%") || item.sku === f )
         } yield (item.id, item.name, item.sku, brand.map(_.name), stock.retailPrice, stock.stockCount))
       }
     }).sortBy(_._2.asc)

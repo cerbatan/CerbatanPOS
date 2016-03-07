@@ -18,15 +18,14 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % "0.3m",
   "org.webjars" %% "webjars-play" % "2.4.0-2",
   "org.webjars" % "requirejs-domready" % "2.0.1-2",
-  "org.webjars" % "bootstrap" % "3.3.6",
+  "org.webjars" % "bootstrap" % "3.3.4",
   "org.webjars" % "font-awesome" % "4.5.0",
   "org.webjars" % "angularjs" % "1.4.8",
   "org.webjars" % "angular-ui-bootstrap" % "1.0.3",
   "org.webjars.bower" % "angular-scroll" % "1.0.0" exclude("org.webjars.bower", "angular"),
   "org.webjars" % "ng-tags-input" % "2.3.0",
   "org.webjars" % "angular-ui-select" % "0.13.1",
-  "org.webjars" % "angular-toastr" % "1.5.0",
-  "org.webjars" % "angular-strap" % "2.3.4"
+  "org.webjars" % "angular-toastr" % "1.5.0"
 )
 
 resolvers ++= Seq(
@@ -40,4 +39,4 @@ routesGenerator := InjectedRoutesGenerator
 //pipelineStages := Seq(rjs)
 
 // for minified *.min.css files
-LessKeys.compress := true
+LessKeys.compress in Assets := true

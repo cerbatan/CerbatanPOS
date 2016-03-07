@@ -1,43 +1,35 @@
-<section class="page">
-    <div class="panel panel-default c-panel-products">
-        @*<div class="panel-heading">
-            <strong><span i18n="Order"></span></strong>
-            <div class="pull-right">
-                <button type="button" class="btn btn-info btn-w-xs btn-xs btn-gap-v btn-round" ng-click="ctrl.edit()"><span class="glyphicon glyphicon-edit"></span> <span data-i18n="Edit"></span></button>
-                <button type="button" class="btn btn-danger btn-w-xs btn-xs btn-gap-v btn-round"><span class="glyphicon glyphicon-remove"></span> <span data-i18n="Remove"></span></button>
-            </div>
-        </div>*@
+<div class="page page-dashboard fill-height">
+    <div class="panel panel-default c-panel-products fill-height">
         <div class="panel-body">
             <form>
                 <div class="row">
-                    <div class="col-md-3 col-xs-4">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="form-group form-group-sm">
-                                <label for="orderId" class="control-label" i18n="Order Id"></label>
-                                <input type="text" class="form-control" id="orderId"
-                                i18n="i18n-placeholder" placeholder="Order ID" autofocus>
+                            <label for="orderId" class="control-label" i18n="Order Id"></label>
+                            <input type="text" class="form-control" id="orderId" ng-model="ctrl.order.id"
+                            i18n="i18n-placeholder" placeholder="Order ID" autofocus>
                         </div>
                     </div>
-                    <div class="col-md-3 col-xs-4">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="form-group form-group-sm">
                             <label for="supplier" class="control-label" i18n="Supplier"></label>
-                            <input type="text" class="form-control" id="invoice"
+                            <input type="text" class="form-control" id="invoice" ng-model="ctrl.order.supplier"
                             i18n="i18n-placeholder" placeholder="Supplier" autofocus>
                         </div>
                     </div>
-                    <div class="col-md-3 col-xs-4">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="form-group form-group-sm">
                             <label for="invoice" class="control-label" i18n="Invoice"></label>
-                            <input type="text" class="form-control" id="invoice"
+                            <input type="text" class="form-control" id="invoice" ng-model="ctrl.order.invoiceNumber"
                             i18n="i18n-placeholder" placeholder="Invoice" autofocus>
                         </div>
                     </div>
-                    <div class="col-md-3 col-xs-4">
+                    <div class="col-sm-3 col-xs-6">
                         <div class="pull-right form-group form-group-sm">
-                            <label for="invoice" class="control-label"></label>
-                            <div class="form-control no-border">
+                            <label class="control-label"></label>
+                            <div class="form-control no-border c-no-padding-right c-no-padding-left">
                                 <div class="btn-group" uib-dropdown is-open="status.isopen2">
-                                    <button type="button" class="btn btn-sm btn-default" id="single-button" ><span class="fa fa-plus"></span> <span data-i18n="Add Item"></span></button>
-                                    <button type="button" class="btn btn-sm btn-default" uib-dropdown-toggle>
+                                    <button type="button" class="btn btn-circle-sm btn-gap-v btn-default" uib-dropdown-toggle>
                                         <span class="fa fa-ellipsis-v"></span>
                                         <span class="sr-only">Actions!</span>
                                     </button>
@@ -48,27 +40,100 @@
                                         <li><a href="javascript:;">Receive</a></li>
                                     </ul>
                                 </div>
+                                <button type="button" class="btn btn-sm btn-gap-v btn-round btn-default" ng-click="ctrl.addItem()" ng-disabled="ctrl.adding">
+                                    <span class="fa fa-plus"></span> <span data-i18n="Add Item"></span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
 
-            <div class="divider"></div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="table-responsive panel panel-default">
+                    <div class="panel panel-default">
                         <table class="table">
                             <thead >
                                 <tr>
-                                    <th i18n="Product"></th>
-                                    <th class="hidden-xs" i18n="In Stock"></th>
-                                    <th class="" i18n="Qty"></th>
-                                    <th class="" i18n="Cost"></th>
-                                    <th class="" i18n="Total"></th>
+                                    <th class="col-sm-5" i18n="Product"></th>
+                                    <th class="hidden-xs text-center" i18n="In Stock"></th>
+                                    <th class="text-center col-sm-1" i18n="Qty"></th>
+                                    <th class="text-center" i18n="Cost"></th>
+                                    <th class="text-right" i18n="Total"></th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr ng-hide="!ctrl.adding" ng-form name="addItemForm">
+                                    <td>
+                                        <input type="text" class="form-control input-sm"
+                                        i18n="i18n-placeholder" placeholder="Search for product..."
+                                        uib-typeahead="product as product.name for product in ctrl.searchProduct($viewValue)"
+                                        typeahead-loading="loadingProducts"
+                                        typeahead-no-results="noResults"
+                                        typeahead-wait-ms="250"
+                                        typeahead-template-url="listedProductTpl.html"
+                                        typeahead-min-length="3"
+                                        typeahead-editable="false"
+                                        typeahead-on-select="ctrl.productSelected($item, $model, $label)"
+                                        ng-keypress="(event.which !== 13)? ctrl.selectSearchInput=false:void(0)"
+                                        ng-model="ctrl.selectedProduct"
+                                        select-here="ctrl.selectSearchInput"
+                                        select-on-focus
+                                        >
+                                    </td>
+                                    <td class="force-media-middle">{{ctrl.itemToAdd.product().stockCount | number: 2}}</td>
+                                    <td class="text-center" ng-class="{ 'has-error' : addItemForm['qty'].$invalid && !addItemForm['qty'].$pristine }">
+                                        <input type="number" class="form-control input-sm" min="1" ng-model="ctrl.itemToAdd.qty" name="qty">
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="input-group input-group-sm">
+                                            <input id="productCost" class="form-control cost-aware" type="text" ng-model="ctrl.itemToAdd.orderCost" money ngMaxlength="17" interpret="true">
+                                            <span class="input-group-cost-aware-btn">
+                                                <span class="btn btn-sm btn-cost-indicator" style="text-decoration : none ;" uib-tooltip="{{ctrl.itemToAddCostDiff() | number:2}}" tooltip-enable="{{ctrl.itemToAdd.orderCost !== ctrl.itemToAdd.product().cost}}" tooltip-trigger="outsideClick" tooltip-placement="top" tooltip-append-to-body="true">
+                                                    <span class="fa fa-arrow-up color-danger" ng-show="ctrl.itemToAddCostDiff()>0"></span>
+                                                    <span class="fa fa-arrow-down color-success" ng-show="ctrl.itemToAddCostDiff()<0"></span>
+                                                </span>
+                                            </span>
+
+                                        </div>
+                                    </td>
+                                    <td class="text-right force-media-middle">{{ctrl.itemToAdd.totalCost() | currency}}</td>
+                                    <td class="force-media-middle text-right">
+                                        <button type="button" class="btn btn-circle-micro btn-warning" ng-click="ctrl.editCurrentItem()">
+                                            <span class="fa fa-pencil"></span>
+                                            <span class="sr-only">Edit!</span>
+                                        </button>
+                                        <span class="small-space"></span>
+                                        <button type="button" class="btn btn-circle-micro btn-default" ng-click="ctrl.addCurrentItem()" ng-disabled="ctrl.selectedProduct==null || addItemForm.$invalid">
+                                            <span class="fa fa-plus"></span>
+                                            <span class="sr-only">Add!</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in ctrl.order.items" class="c-row-no-padding">
+                                    <td>{{item.product().name}}</td>
+                                    <td class="number hidden-xs">{{item.product().stockCount | number:2}}</td>
+                                    <td class="number">{{item.qty}}</td>
+                                    <td class="text-right">
+                                        {{item.orderCost | currency}}
+                                        <span class="fa fa-arrow-up color-danger" ng-show="item.orderCost>item.product().cost"></span>
+                                        <span class="fa fa-arrow-down color-success" ng-show="item.orderCost<item.product().cost"></span>
+                                        <span class="fa fa-dot-circle-o color-reverse" ng-show="item.orderCost==item.product().cost"></span>
+                                    </td>
+                                    <td class="text-right">{{item.totalCost() | currency}}</td>
+                                    <td class="force-media-middle text-right">
+                                        <button type="button" class="btn btn-circle-micro btn-default">
+                                            <span class="fa fa-pencil"></span>
+                                            <span class="sr-only">Edit!</span>
+                                        </button>
+                                        <span class="small-space"></span>
+                                        <button type="button" class="btn btn-circle-micro btn-default" ng-click="ctrl.removeOrderItem(item)">
+                                            <span class="fa fa-remove text-danger"></span>
+                                            <span class="sr-only">Remove!</span>
+                                        </button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -89,4 +154,103 @@
         </div>
 
     </div>
-</section>
+</div>
+
+<script type="text/ng-template" id="listedProductTpl.html">
+<a tabindex="-1">
+<div ng-bind-html="match.model.name | uibTypeaheadHighlight:query"></div>
+<div class="dropdown-sku"><span i18n="SKU:"></span> {{match.model.sku}}</div>
+</a>
+</script>
+
+<script type="text/ng-template" id="updateProductModal.html">
+<div class="modal-header">
+        <h4 class="c-text-no-wrap">{{modalCtrl.item.product().name}}</h4>
+</div>
+<div class="modal-body">
+<form class="form-horizontal" role="form" name="updateForm" novalidate>
+<div class="row">
+    <div class="col-sm-4">
+        <label class="control-label" for="productCost"><span i18n="Cost"></span> &nbsp;&nbsp; <small i18n="(No Taxes)" class="c-label-subscript"></small></label>
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon">$</span>
+            <input id="productCost" name="productCost" class="form-control" type="text" ng-model="modalCtrl.orderCost"
+                    ng-change="modalCtrl.orderCostUpdated(updateForm.productCost.$valid)" money ngMaxlength="17" interpret="true" focus-here>
+            <span class="input-group-cost-aware-btn">
+                <span class="btn btn-sm btn-cost-indicator" style="text-decoration : none ;" uib-tooltip="{{modalCtrl.costDifference() | number:2}}" tooltip-enable="{{modalCtrl.costDifference()!=0}}" tooltip-trigger="outsideClick" tooltip-placement="top" tooltip-append-to-body="true">
+                    <span class="fa fa-arrow-up color-danger" ng-show="modalCtrl.costDifference()>0"></span>
+                    <span class="fa fa-arrow-down color-success" ng-show="modalCtrl.costDifference()<0"></span>
+                </span>
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <label class="control-label" for="productMarkup" i18n="Markup"></label>
+        <div class="input-group input-group-sm">
+            <input id="productMarkup" class="form-control" type="text" ng-model="modalCtrl.markup" ng-change="modalCtrl.markupUpdated()" money mgMaxlength="8" precision="2">
+            <span class="input-group-addon">%</span>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div ng-if="modalCtrl.product.tax != null">
+            <label class="control-label" for="productPrice"><span i18n="Price"></span> &nbsp;&nbsp; <small i18n="(No Taxes)" class="c-label-subscript"></small></label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">$</span>
+                <input id="productPrice" class="form-control" type="text" ng-model="modalCtrl.newPrice" ng-change="modalCtrl.priceUpdated()" money mgMaxlength="8">
+            </div>
+        </div>
+        <div ng-if="modalCtrl.product.tax == null">
+            <label class="control-label" for="retailPrice" i18n="Total Price"></label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">$</span>
+                <input id="retailPrice" class="form-control" type="text" ng-model="modalCtrl.newRetailPrice" ng-change="modalCtrl.retailPriceUpdated()" money mgMaxlength="8">
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-if="modalCtrl.product.tax != null">
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4">
+            <label class="control-label" for="productTax" i18n="Tax"></label>
+            <div class="form-control no-border c-no-padding-left">
+                {{modalCtrl.product.tax.name}}: {{modalCtrl.product.tax.percentage}}%
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="control-label" for="retailPrice"><span i18n="Total Price"></span> &nbsp;&nbsp; <small i18n="(After Taxes)" class="c-label-subscript"></small></label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-addon">$</span>
+                <input id="retailPrice" class="form-control" type="text" ng-model="modalCtrl.newRetailPrice" ng-change="modalCtrl.retailPriceUpdated()" money mgMaxlength="8">
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-if="modalCtrl.item.fractionsNewPrices.length>0">
+    <table class="table">
+        <thead>
+            <th class="col-sm-4" i18n="Fractions" class="c-half-cell-bottom-padding"></th>
+            <th class="col-sm-2" i18n="Cost"></th>
+            <th class="col-sm-3"></th>
+        </thead>
+        <tbody>
+            <tr ng-repeat="fraction in modalCtrl.fractionsNewPrices track by fraction.id">
+                <td class="col-sm-4 force-media-middle">{{fraction.name}}</td>
+                <td class="col-sm-2 force-media-middle">{{ (modalCtrl.orderCost/fraction.qty) | number:2}}</td>
+                <td class="col-sm-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-addon">$</span>
+                        <input class="form-control input-sml" type="text" ng-model="fraction.newPrice" money mgMaxlength="8">
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</form>
+</div>
+<div class="modal-footer">
+<button class="btn btn-info" ng-click="modalCtrl.ok()" i18n="Add" ng-disabled="modalCtrl.disableSave" accesskey="A"></button>
+<button class="btn btn-warning" ng-click="modalCtrl.cancel()" i18n="Cancel"></button>
+</div>
+</script>

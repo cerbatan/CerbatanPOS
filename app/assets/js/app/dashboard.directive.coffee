@@ -8,7 +8,7 @@ define ['jquery', './module'],
 
           element.on '$destroy',
             ->
-              $(element).parents().removeClass('fill-height')
+              $(element).parents().removeClass('fill-height') unless $(element).parent().children().hasClass("page-dashboard")
 
 
       app.directive 'pageDashboard', DashboardDirective

@@ -5,7 +5,6 @@ define(['angular']
       [
         'ngAnimate'
         'ui.bootstrap'
-        'mgcrea.ngStrap.popover'
         'ngSanitize'
         'ui.select'
         'play.routing'

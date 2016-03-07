@@ -60,6 +60,7 @@ define(['./module']
         @goToAddProduct = goToAddProduct
         @showProduct = showProduct
         @pageChange = pageChange
+        @queryChanged = queryChanged
         activate()
 
       goToAddProduct = () ->
@@ -78,6 +79,9 @@ define(['./module']
 
       showProduct = (productId) ->
         productsRoutes.showProduct(productId)
+
+      queryChanged = () =>
+        productsRoutes.showBriefs(@queryFilter, null)
 
       pageChange = () =>
         productsRoutes.showBriefs(@queryFilter, @currentPage)
@@ -358,7 +362,7 @@ define(['./module']
       return
 
     NewBrandModalCtrl
-      .$inject = ['$modalInstance', 'newBrandName', 'showInput']
+      .$inject = ['$uibModalInstance', 'newBrandName', 'showInput']
 
 
     AddTaxModalCtrl = ($modalInstance) ->

@@ -4,6 +4,12 @@
   font-weight: normal;
   font-style: normal;
 }
+
+.c-text-no-wrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .c-img-responsive {
   display: block;
   max-width: 140px;
@@ -87,6 +93,10 @@
   padding-bottom: @table-cell-padding/2 !important;
 }
 
+.c-half-cell-bottom-padding {
+  padding-bottom: @table-cell-padding/2 !important;
+}
+
 .c-row-group {
   display: table;
 }
@@ -151,6 +161,46 @@ input.spinner[type=number] {
 
 .row-border-bottom {
   border-bottom: 2px solid @table-border-color !important;
+}
+
+.btn-circle {
+  width: 45px;
+  height: 45px;
+  text-align: center;
+  .button-size(@padding-base-vertical; @padding-base-horizontal; @font-size-base; @line-height-base; 30px);
+}
+
+.btn-circle-micro {
+  width: 19px;
+  height: 19px;
+  text-align: center;
+  padding: 1px 0;
+  font-size: 13px;
+  line-height: 0.1;
+  border-radius: 30px;
+}
+
+.btn-circle-sm {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  .button-size(@padding-small-vertical; @padding-small-horizontal; @font-size-small; @line-height-small; 30px);
+}
+
+input.cost-aware {
+  padding-right: 26px !important ;
+}
+
+.input-group-cost-aware-btn {
+  position: relative ;
+}
+
+.input-group-cost-aware-btn span.btn-cost-indicator {
+  position: absolute ;
+  right: 0px ;
+  cursor: default;
+  //top: 0px ;
+  z-index: 500 ;
 }
 
 @import "./register.less";

@@ -10,6 +10,7 @@ define(['./module']
       goToReceiveOrder = () ->
         stockRoutes.receiveOder()
 
+
       activate = =>
         #Get orderlist here
 

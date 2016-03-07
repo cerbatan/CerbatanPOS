@@ -3,12 +3,17 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-sm-6 col-xs-8">
-                    <div class="input-group">
-                        <input type="text" class="form-control" i18n="i18n-placeholder" placeholder="Search for product...">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
-                        </span>
-                    </div>
+                    <form>
+                        <div class="input-group">
+                            <input type="text" class="form-control" ng-model="ctrl.queryFilter"
+                                i18n="i18n-placeholder" placeholder="Search for product..." focus-here select-on-focus>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="ctrl.queryChanged()">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </form>
                 </div>
                 <div class="col-sm-5 col-md-offset-1 col-xs-4">
                     <button class="btn btn-w-sm btn-sm btn-gap-v btn-round btn-info pull-right" ng-click="ctrl.goToAddProduct()"><span class="glyphicon glyphicon-plus"></span> <span data-i18n="Add"></span></button>
