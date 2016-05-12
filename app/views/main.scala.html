@@ -1,4 +1,4 @@
-@(title: String)
+@(title: String, webJarAssets: WebJarAssets)
 
 <!DOCTYPE html>
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
@@ -11,12 +11,12 @@
             <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
         @*<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic' rel='stylesheet' type='text/css'>*@
             <!-- Needs images, font... therefore can not be part of main.css -->
-        <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("font-awesome.min.css"))'>
+        <link rel='stylesheet' href='@routes.WebJarAssets.at(webJarAssets.locate("font-awesome.min.css"))'>
         @*<link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">*@
             <!-- end Needs images -->
 
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.min.css")">
-        <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("select.min.css"))'>
+        <link rel='stylesheet' href='@routes.WebJarAssets.at(webJarAssets.locate("select.min.css"))'>
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
 
 
@@ -34,10 +34,10 @@
               requirejs.config({
                 paths: {
                   "jsRoutes": '@routes.Application.jsRoutes().url.dropRight(3)',
-                  "angular-scroll": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-scroll.min.js").dropRight(3))',
-                  "angular-tags-input": '@routes.WebJarAssets.at(WebJarAssets.locate("ng-tags-input.min.js").dropRight(3))',
-                  "angular-ui-select": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-ui-select", "select.min.js").dropRight(3))',
-                  "angular-toastr": '@routes.WebJarAssets.at(WebJarAssets.locate("angular-toastr.tpls.min.js").dropRight(3))',
+                  "angular-scroll": '@routes.WebJarAssets.at(webJarAssets.locate("angular-scroll.min.js").dropRight(3))',
+                  "angular-tags-input": '@routes.WebJarAssets.at(webJarAssets.locate("ng-tags-input.min.js").dropRight(3))',
+                  "angular-ui-select": '@routes.WebJarAssets.at(webJarAssets.locate("angular-ui-select", "select.min.js").dropRight(3))',
+                  "angular-toastr": '@routes.WebJarAssets.at(webJarAssets.locate("angular-toastr.tpls.min.js").dropRight(3))',
                 },
                 shim: {
                   "jsRoutes": { deps: [], exports: 'jsRoutes' },
@@ -50,7 +50,7 @@
             }
           };
         </script>
-        <script data-main="@routes.Assets.versioned("js/app.js")" src='@routes.WebJarAssets.at(WebJarAssets.locate("require.min.js"))'></script>
+        <script data-main="@routes.Assets.versioned("js/app.js")" src='@routes.WebJarAssets.at(webJarAssets.locate("require.min.js"))'></script>
 
     </head>
     <body
