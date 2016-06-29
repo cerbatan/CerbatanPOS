@@ -157,6 +157,10 @@ define(['./module']
 
 
       persistItemDetails = () =>
+        @item.orderCost = @orderCost
+        @item.newPrice = @newPrice
+        @item.newRetailPrice = @newRetailPrice
+        @item.fractionsNewPrices = ({id: f.id, newPrice: f.newPrice} for f in @fractionsNewPrices)
 
 
 

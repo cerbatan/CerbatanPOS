@@ -13,6 +13,8 @@ package object repositories {
   lazy val fractionsQuery: TableQuery[Fractions] = TableQuery[Fractions]
   lazy val salesQuery: TableQuery[Sales] = TableQuery[Sales]
   lazy val soldItemsQuery: TableQuery[SoldItems] = TableQuery[SoldItems]
+  lazy val ordersQuery: TableQuery[Orders] = TableQuery[Orders]
+  lazy val orderItemsQuery: TableQuery[OrderItems] = TableQuery[OrderItems]
 
   class BasicRepository[E <: slick.lifted.AbstractTable[_]](protected val query: TableQuery[E]);
 }
