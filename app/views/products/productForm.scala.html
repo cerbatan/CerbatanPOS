@@ -45,6 +45,19 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="productTax" i18n="Tax"></label>
+                        <div class="col-sm-7">
+                            <ui-select ng-model="ctrl.product.tax" ng-change="ctrl.taxChanged()" id="productTax"
+                            theme="bootstrap" on-select="ctrl.taxSelected($select)">
+                                <ui-select-match allow-clear placeholder="Select Tax...">
+                                    {{$select.selected.name}} ({{$select.selected.percentage}}%)</ui-select-match>
+                                <ui-select-choices repeat="tax in ctrl.taxes track by $index">
+                                    <span ng-bind-html="tax.name"></span><span ng-if="tax.id != null" ng-bind-html="' (' + tax.percentage + '%)'"></span>
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="productTags" i18n="Tags"></label>
                         <div class="col-sm-7">
                             <tags-input ng-model="ctrl.product.tags" display-property="name" key-property="id" replace-spaces-with-dashes="false" class="ui-tags-input" id="productTags" on-tag-adding="ctrl.handleAddingTag($tag)" placeholder="...">
@@ -62,9 +75,8 @@
             <div class="panel-body">
                 <div class="form-group">
                     <div class="col-xs-10 col-xs-offset-1">
-                        <div class="well bg-reverse">
                             <div class="row">
-                                <div class="col-sm-4">
+                                <div class="col-md-3">
                                     <label class="control-label" for="productCost"><span i18n="Cost"></span>&nbsp;&nbsp;<small i18n="(No Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
@@ -72,35 +84,21 @@
                                     </div>
                                 </div>
 
-                                <div class="col-sm-4">
+                                <div class="col-md-2">
                                     <label class="control-label" for="productMarkup" i18n="Markup"></label>
                                     <div class="input-group">
                                         <input id="productMarkup" class="form-control" type="text" ng-model="ctrl.product.markup" ng-change="ctrl.productMarkupUpdated()" money mgMaxlength="8" precision="2">
                                         <span class="input-group-addon">%</span>
                                     </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-md-3">
                                     <label class="control-label" for="productPrice"><span i18n="Price"></span>&nbsp;&nbsp;<small i18n="(No Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
                                         <input id="productPrice" class="form-control" type="text" ng-model="ctrl.product.price" ng-change="ctrl.productPriceUpdated()" money mgMaxlength="8">
                                     </div>
                                 </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-sm-4 col-sm-offset-4">
-                                    <label class="control-label" for="productTax" i18n="Tax"></label>
-                                    <ui-select ng-model="ctrl.product.tax" ng-change="ctrl.taxChanged()" id="productTax"
-                                    theme="bootstrap" on-select="ctrl.taxSelected($select)">
-                                        <ui-select-match allow-clear placeholder="Select Tax...">
-                                            {{$select.selected.name}} ({{$select.selected.percentage}}%)</ui-select-match>
-                                        <ui-select-choices repeat="tax in ctrl.taxes track by $index">
-                                            <span ng-bind-html="tax.name"></span><span ng-if="tax.id != null" ng-bind-html="' (' + tax.percentage + '%)'"></span>
-                                        </ui-select-choices>
-                                    </ui-select>
-                                </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="control-label" for="retailPrice"><span i18n="Total Price"></span>&nbsp;&nbsp;<small i18n="(After Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
@@ -108,7 +106,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -119,10 +116,10 @@
 
             <div class="panel-body">
 
-                <div class="ui-tab-container ui-tab-reverse">
-                    <uib-tabset class="ui-tab">
-                        <uib-tab>
-                            <uib-tab-heading i18n="Standard"></uib-tab-heading>
+                @*<div class="ui-tab-container ui-tab-reverse">*@
+                    @*<uib-tabset class="ui-tab">*@
+                        @*<uib-tab>*@
+                            @*<uib-tab-heading i18n="Standard"></uib-tab-heading>*@
                             <div class="well well-sm bg-reverse">
                                 <div class="c-section-header">
                                     <span class="c-legend">Track Stock</span>
@@ -188,13 +185,12 @@
                             </div>
 
 
-                        </uib-tab>
-                        <uib-tab disabled="true">
-                            <uib-tab-heading i18n="Composite"></uib-tab-heading>
-
-                        </uib-tab>
-                    </uib-tabset>
-                </div>
+                        @*</uib-tab>*@
+                        @*<uib-tab disabled="true">*@
+                            @*<uib-tab-heading i18n="Composite"></uib-tab-heading>*@
+                        @*</uib-tab>*@
+                    @*</uib-tabset>*@
+                @*</div>*@
                 <hr class="spacer-10"/>
                 <div class="row pull-right">
                     <div class="col-xs-12">
@@ -232,7 +228,7 @@
 </div>
 </script>
 
-<script type="text/ng-template" id="addTaxModal.html">her
+<script type="text/ng-template" id="addTaxModal.html">
 <div class="modal-header">
 <h3 i18n="Add Tax"></h3>
 </div>

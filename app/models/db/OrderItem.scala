@@ -10,12 +10,12 @@ object OrderItemId extends IdCompanion[OrderItemId]
 
 case class OrderItem(id: Option[OrderItemId], order: OrderId, item: ItemId,
                      cost: Double, price: Double, retailPrice: Double,
-                     oldCost: Double, oldPrice: Double, oldRetailPrice: Double)
+                     oldCost: Double, oldPrice: Double, oldRetailPrice: Double) extends WithId[OrderItemId]
 
 class OrderItems(tag: SlickTag) extends IdTable[OrderItemId, OrderItem](tag, "order_items"){
   override def * = (id.?, order, item, cost, price, retailPrice, oldCost, oldPrice, oldRetailPrice) <>(OrderItem.tupled, OrderItem.unapply)
 
-  def order = column[OrderId]("order")
+  def order = column[OrderId]("order_id")
   def item = column[ItemId]("item")
   def cost = column[Double]("cost")
   def price = column[Double]("price")

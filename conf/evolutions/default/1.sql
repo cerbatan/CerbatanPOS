@@ -60,6 +60,8 @@ CREATE TABLE fractions (
   FOREIGN KEY (item) REFERENCES items(id)
 );
 
+CREATE INDEX idx_fraction_item_id ON fractions(item);
+
 CREATE TABLE items_stock (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   item BIGINT NOT NULL,

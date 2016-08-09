@@ -30,7 +30,7 @@ class Products @Inject()(val dbConfigProvider: DatabaseConfigProvider,
   def newProduct = StackAction(AuthorityKey -> Administrator) { implicit request =>
     val user = loggedIn
 
-    Ok(views.html.products.productForm("Add Product"))
+    Ok(views.html.products.productForm("New Product"))
   }
 
   def editProduct = StackAction(AuthorityKey -> Administrator) { implicit request =>

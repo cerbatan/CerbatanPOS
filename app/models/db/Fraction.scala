@@ -23,5 +23,6 @@ class Fractions(tag: SlickTag) extends IdTable[FractionId, Fraction](tag, "fract
 
   def quantityInPack = column[Int]("qty_in_pack")
 
+  def itemIdIdx = index("idx_fraction_item_id", item, unique = false)
   def itemFk = foreignKey("fk_item_fraction", item, itemsQuery)(_.id)
 }
