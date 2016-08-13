@@ -1,6 +1,7 @@
 <div class="page page-dashboard fill-height">
-    <div class="panel panel-default c-panel-products fill-height">
-        <div class="panel-body">
+    <div class="panel panel-default c-panel-products" id="register">
+        <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> <span data-i18n="New Order"></span></strong></div>
+        <div class="panel-body" id="register-list">
             <form>
                 <div class="row">
                     <div class="col-sm-3 col-xs-6">
@@ -152,7 +153,26 @@
                 </div>
             </div>
         </div>
-
+        <div id="register-actions" class="c-margin-bottom-md">
+            <div class="pull-right">
+                <div class="btn-group dropup" uib-dropdown>
+                    <button id="split-button" type="button" class="btn btn-primary btn-w-sm" i18n="Save"></button>
+                    <button type="button" class="btn btn-primary" uib-dropdown-toggle>
+                        <span class="caret"></span>
+                        <span class="sr-only">Split button!</span>
+                    </button>
+                    <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
+                        <li role="menuitem"><a href="javascript:;" i18n="Save"></a></li>
+                        <li role="menuitem"><a href="javascript:;" i18n="Receive"></a></li>
+                        <li class="divider"></li>
+                        <li role="menuitem"><a href="javascript:;" i18n="Delete"></a></li>
+                    </ul>
+                </div>
+                <button type="button" class="btn btn-w-sm btn-default">
+                    <span i18n="Discard"></span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -250,7 +270,7 @@
 </form>
 </div>
 <div class="modal-footer">
-<button class="btn btn-info" ng-click="modalCtrl.ok()" i18n="Save" ng-disabled="modalCtrl.disableSave" accesskey="A"></button>
-<button class="btn btn-warning" ng-click="modalCtrl.cancel()" i18n="Cancel"></button>
+<button class="btn btn-info btn-round btn-w-md" ng-click="modalCtrl.ok()" i18n="Save" ng-disabled="modalCtrl.disableSave" accesskey="A"></button>
+<button class="btn btn-default btn-round btn-w-md" ng-click="modalCtrl.cancel()" i18n="Cancel"></button>
 </div>
 </script>
