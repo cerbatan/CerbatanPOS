@@ -2,12 +2,13 @@ define(['./module']
   (module) ->
     'use strict'
 
-    ReceiveOrderController = ($log, $modal, ordersService, stockRoutes, backend) ->
+    EditOrderController = ($log, $modal, ordersService, ordersRoutes, backend, preparedOrder) ->
       init = () =>
         @addItem = addItem
         @adding = false
 
-        @order = null;
+        @order = null
+
         @itemToAdd = null
 
         @searchProduct = searchProduct
@@ -72,13 +73,13 @@ define(['./module']
 
       activate = =>
         #Get orderlist here
-        @order = ordersService.newOrder()
+        @order = preparedOrder.data
 
       init()
       return
 
-    ReceiveOrderController
-      .$inject = ['$log','$uibModal', 'ordersService', 'stockRoutes', 'ordersBackend']
+    EditOrderController
+      .$inject = ['$log','$uibModal', 'ordersService', 'ordersRoutes', 'ordersBackend', 'preparedOrder']
 
 
     EditOrderItemDialogCtrl = ($modalInstance, orderItem) ->
@@ -171,7 +172,7 @@ define(['./module']
     .$inject = ['$uibModalInstance', 'orderItem']
 
 
-    module.controller('ReceiveOrderCtrl', ReceiveOrderController)
+    module.controller('EditOrderCtrl', EditOrderController)
     module.controller('EditOrderItemDialogCtrl', EditOrderItemDialogCtrl)
 
     return

@@ -57,14 +57,21 @@ define(['./module', 'angular']
                 productsService.getProduct($route.current.params.id)
             ]
 
-        .when '/stock-control/order/receive',
-          templateUrl: 'views/order/receive'
-          controller: 'ReceiveOrderCtrl'
+        .when '/order/:id',
+          templateUrl: 'views/order/edit'
+          controller: 'EditOrderCtrl'
           controllerAs: 'ctrl'
+          resolve:
+            preparedOrder: [
+              '$route'
+              'ordersBackend'
+              ($route, ordersBackend) ->
+                ordersBackend.getOrder($route.current.params.id)
+            ]
 
-        .when '/stock-control',
-          templateUrl: 'views/stock-control'
-          controller: 'StockCtrl'
+        .when '/orders',
+          templateUrl: 'views/orders'
+          controller: 'OrdersCtrl'
           controllerAs: 'ctrl'
 
         .when '/404',

@@ -46,22 +46,36 @@ define(['./module']
 
 
 
-      OrdersService = () ->
+      OrdersService = (backend, $q) ->
         init = =>
 
         createOrder = () =>
           new Order()
 
+        loadOrder = (id) =>
+          deferred = $q.defer()
+
+          backend.getOrder(id).then(
+            (result) ->
+                detailedOrder = result.data
+
+            ->
+          )
+
+          deferred.promise
+
+
         init()
 
         return {
           newOrder: createOrder
+          loadOrder: loadOrder
 
 #          flushTagsCache: ->
 #            $cacheFactory.get('$http').remove playRoutes.controllers.products.Products.tags().url
         }
 
-      module.factory('ordersService', [OrdersService]))()
+      module.factory('ordersService', ['ordersBackend', '$q', OrdersService]))()
 
     return
 )

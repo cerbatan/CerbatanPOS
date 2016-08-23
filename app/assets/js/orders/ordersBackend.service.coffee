@@ -9,6 +9,13 @@ define(['./module']
 
           getProduct: (productId) ->
             playRoutes.controllers.products.Products.getProduct(productId).get()
+
+          createOrder: (supplierName) ->
+            playRoutes.controllers.orders.Orders.add().post(supplier: supplierName)
+
+          getOrder: (orderId) ->
+            playRoutes.controllers.orders.Orders.getOrder(orderId).get()
+
         }
 
       module.factory('ordersBackend', ['playRoutes', '$cacheFactory', OrdersBackend])

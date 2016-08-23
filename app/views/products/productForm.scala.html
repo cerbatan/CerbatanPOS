@@ -87,7 +87,7 @@
                                 <div class="col-md-2">
                                     <label class="control-label" for="productMarkup" i18n="Markup"></label>
                                     <div class="input-group">
-                                        <input id="productMarkup" class="form-control" type="text" ng-model="ctrl.product.markup" ng-change="ctrl.productMarkupUpdated()" money mgMaxlength="8" precision="2">
+                                        <input id="productMarkup" class="form-control" type="text" ng-model="ctrl.product.markup" ng-change="ctrl.productMarkupUpdated()" money ngMaxlength="8" precision="2">
                                         <span class="input-group-addon">%</span>
                                     </div>
                                 </div>
@@ -95,14 +95,14 @@
                                     <label class="control-label" for="productPrice"><span i18n="Price"></span>&nbsp;&nbsp;<small i18n="(No Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
-                                        <input id="productPrice" class="form-control" type="text" ng-model="ctrl.product.price" ng-change="ctrl.productPriceUpdated()" money mgMaxlength="8">
+                                        <input id="productPrice" class="form-control" type="text" ng-model="ctrl.product.price" ng-change="ctrl.productPriceUpdated()" money ngMaxlength="8">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="control-label" for="retailPrice"><span i18n="Total Price"></span>&nbsp;&nbsp;<small i18n="(After Taxes)" class="c-label-subscript"></small></label>
                                     <div class="input-group">
                                         <span class="input-group-addon">$</span>
-                                        <input id="retailPrice" class="form-control" type="text" ng-model="ctrl.product.retailPrice" ng-change="ctrl.retailPriceUpdated()" money mgMaxlength="8">
+                                        <input id="retailPrice" class="form-control" type="text" ng-model="ctrl.product.retailPrice" ng-change="ctrl.retailPriceUpdated()" money ngMaxlength="8">
                                     </div>
                                 </div>
                             </div>
@@ -162,7 +162,7 @@
                                                 <div class="col-sm-2" ng-class="{ 'has-error' : productForm['fractionProportion'+$index].$invalid && !productForm['fractionProportion'+$index].$pristine }">
                                                     <label ng-if="$index==0" class="control-label" for="fractionProportion" i18n="Qty in Pack"></label>
                                                     <input id="fractionProportion" name="fractionProportion{{$index}}" class="form-control"
-                                                            type="number" min="1" mgMaxlength="6" ng-model="fraction.qty"
+                                                            type="number" min="1" ngMaxlength="6" ng-model="fraction.qty"
                                                             ng-change="ctrl.fractionProportionChanged($index)" ng-disabled="$index==0"
                                                             i18n="i18n-placeholder" placeholder="Eg. 100" uib-popover="How many of this fractions are contained in the main package?" popover-trigger="focus"
                                                             required>
@@ -171,7 +171,7 @@
                                                     <label ng-if="$index==0" class="control-label" for="fractionPrice" i18n="Price"></label>
                                                     <div class="row">
                                                         <div class="col-xs-10">
-                                                            <input id="fractionPrice" name="fractionPrice{{$index}}" class="form-control" type="text" money mgMaxlength="8" ng-model="fraction.price" ng-change="ctrl.fractionPriceChanged($index, productForm.fractionPrice{{$index}})" ng-disabled="$index==0" i18n="i18n-placeholder" placeholder="Retail price" required>
+                                                            <input id="fractionPrice" name="fractionPrice{{$index}}" class="form-control" type="text" money ngMaxlength="8" ng-model="fraction.price" ng-change="ctrl.fractionPriceChanged($index, productForm.fractionPrice{{$index}})" ng-disabled="$index==0" i18n="i18n-placeholder" placeholder="Retail price" required>
                                                         </div>
                                                         <div class="col-xs-2 c-no-padding-left">
                                                             <a href="javascript:;" class="btn-icon btn-icon-round btn-icon-sm bg-danger" ng-show="$index>0" ng-click="ctrl.removeFraction($index)"><i class="fa fa-remove"></i></a>
@@ -241,7 +241,7 @@
 </div>
 <div class="col-sm-3 col-sm-offset-1">
 <label class="control-label" for="newTaxPercentage" i18n="Percentage"></label>
-<input id="newTaxPercentage" class="form-control" type="text" ng-model="modalCtrl.newTax.percentage" money mgMaxlength="8" precision="2">
+<input id="newTaxPercentage" class="form-control" type="text" ng-model="modalCtrl.newTax.percentage" money ngMaxlength="8" precision="2">
 </div>
 </div>
 </form>

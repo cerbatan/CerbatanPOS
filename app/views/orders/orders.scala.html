@@ -1,5 +1,6 @@
 <section class="page">
     <div class="panel panel-default c-panel-products">
+        <div class="panel-heading"><strong><span class="glyphicon glyphicon-th"></span> <span data-i18n="Orders"></span></strong></div>
         <div class="panel-body">
             <div class="row">
                 <div class="col-sm-4">
@@ -12,9 +13,7 @@
                 </div>
                 <div class="col-sm-7 col-md-offset-1">
                     <div class="pull-right">
-                        <button class="btn btn-w-sm btn-md btn-gap-v btn-round btn-default" ng-click="ctrl.goToReceiveOrder()"><span class="fa fa-truck"></span> <span data-i18n="Receive Order"></span></button>
-                        <button class="btn btn-w-sm btn-md btn-gap-v btn-round btn-default" ng-click="ctrl.goToAddProduct()"><span class="fa fa-reply"></span> <span data-i18n="Retrun Stock"></span></button>
-                        <button class="btn btn-w-sm btn-md btn-gap-v btn-round btn-default" ng-click="ctrl.goToAddProduct()"><span class="fa fa-check-circle-o"></span> <span data-i18n="Count Stock"></span></button>
+                        <button class="btn btn-w-sm btn-md btn-gap-v btn-round btn-info" ng-click="ctrl.newOrder()"><span class="fa fa-plus"></span> <span data-i18n="New Order"></span></button>
                     </div>
                 </div>
             </div>
@@ -55,3 +54,23 @@
 
     </div>
 </section>
+
+<script type="text/ng-template" id="newOrderModal.html">
+<div class="modal-header bg-info">
+<h4 class="modal-title" i18n="New Order"></h4>
+</div>
+<div class="modal-body">
+<form class="form-horizontal" role="form" name="newOrderForm">
+<div class="row">
+<div class="col-sm-10 col-sm-offset-1">
+<label class="control-label" for="newOrderSupplier" i18n="Supplier"></label>
+<input id="newOrderSupplier" class="form-control" type="text" ng-model="modalCtrl.supplier" min="3" ngMaxlength="50" required i18n="i18n-placeholder" placeholder="Enter a supplier...">
+</div>
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button class="btn btn-info" ng-click="modalCtrl.ok()" i18n="Add" ng-disabled="newOrderForm.$invalid" accesskey="A"></button>
+<button class="btn btn-default" ng-click="modalCtrl.cancel()" i18n="Cancel"></button>
+</div>
+</script>
